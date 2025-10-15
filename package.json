@@ -15,5 +15,9 @@
     "DSP"
   ],
   "author": "Rohan Kanhaisingh",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "uuid": "^13.0.0"
+  }
 }
