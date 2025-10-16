@@ -29,7 +29,7 @@ export interface LoadAudioSourceOptions {
 }
 
 export interface ChannelOptions {
-    label: string;
+    label: string | null;
     maxAudioNodes: number;
     maxEffects: number;
 }
