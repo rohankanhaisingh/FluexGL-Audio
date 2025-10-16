@@ -58,7 +58,15 @@ export {
     ResolveAudioOutputDevices,
     ResolveAudioInputDevices,
     ResolveDefaultAudioInputDevice,
-    ResolveDefaultAudioOutputDevice
+    ResolveDefaultAudioOutputDevice,
+    LoadAudioSource
 } from "./utilities/helpers";
 
-export { FluexGLAudioDescriptor } from "./typings";
+export {
+    SUPPORTED_FILE_TYPES
+} from "./utilities/constants";
+
+export { 
+    FluexGLAudioDescriptor,
+    LoadAudioSourceOptions
+ } from "./typings";

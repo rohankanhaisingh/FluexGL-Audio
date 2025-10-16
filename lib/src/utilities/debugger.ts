@@ -1,4 +1,4 @@
-import { ErrorCodes, WarningCodes } from "../error-codes";
+import { ErrorCodes, WarningCodes } from "../console-codes";
 
 import { FluexGLAudio } from "../index";
 

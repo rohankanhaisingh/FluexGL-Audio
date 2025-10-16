@@ -23,3 +23,13 @@ export interface FluexGLAudioDescriptor {
     repository: string;
     options: FluexGLAudioOptions;
 }
+
+export interface LoadAudioSourceOptions {
+    allowForeignFileTypes: boolean;
+}
+
+export interface ChannelOptions {
+    label: string;
+    maxAudioNodes: number;
+    maxEffects: number;
+}
