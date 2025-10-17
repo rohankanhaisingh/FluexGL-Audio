@@ -90,6 +90,10 @@ export class AudioClip {
             `Stereo panner node on audio clip '${this.id}' is undefined`
         ]);
 
+        if(panLevel < -1 || panLevel > 1) return Debug.Error("Could not set the pan level because it is not between -1 and 1.", [
+            "Provide this method with a value between -1 and 1"
+        ]);
+
         this.stereoPannerNode.pan.setValueAtTime(panLevel, 0);
 
         return this;
