@@ -8,8 +8,9 @@ export class AudioClip {
 
     public id: string = v4();
     public hasAttachedToChannel: boolean = false;
-    public audioBufferSourceNodes: AudioBufferSourceNode[] = [];
-    public maxAudioBufferSourceNodes: number = 1;
+
+    private audioBufferSourceNodes: AudioBufferSourceNode[] = [];
+    private maxAudioBufferSourceNodes: number = 1;
 
     public loop: boolean = false;
 
@@ -75,8 +76,8 @@ export class AudioClip {
             const i = self.audioBufferSourceNodes.indexOf(bufferSource);
 
             bufferSource.disconnect();
-            
-            if (i >= 0) 
+
+            if (i >= 0)
                 return self.audioBufferSourceNodes.splice(i, 1);
         });
     }
@@ -114,5 +115,20 @@ export class AudioClip {
         });
 
         return this.loop = loop ?? true;
+    }
+
+    public SetMaxAudioBufferSourceNodes(value: number) {
+
+        Debug.Warn("Changing the amount of buffer source nodes may cause some properties of this class instance to work inproperly.", [
+            "The default value is 1."
+        ]);
+
+        return this.maxAudioBufferSourceNodes = value;
+    }
+
+    public DisconnectAllAudioBufferSourceNodes(): void {
+        return this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
+            node.disconnect();
+        });
     }
 }

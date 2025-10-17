@@ -61,9 +61,7 @@ export class Channel {
         clip.stereoPannerNode?.disconnect();
         clip.gainNode?.disconnect();
 
-        clip.audioBufferSourceNodes.forEach(function(node: AudioBufferSourceNode) {
-            node.disconnect();
-        });
+        clip.DisconnectAllAudioBufferSourceNodes();
 
         this.audioClips.forEach(function(_clip: AudioClip, index: number) {
             if(clip.id === _clip.id)
