@@ -11,6 +11,8 @@ export class AudioClip {
     public audioBufferSourceNodes: AudioBufferSourceNode[] = [];
     public maxAudioBufferSourceNodes: number = 1;
 
+    public loop: boolean = false;
+
     declare public gainNode: GainNode;
     declare public stereoPannerNode: StereoPannerNode;
 
@@ -28,6 +30,8 @@ export class AudioClip {
         const bufferSource = context.createBufferSource();
         bufferSource.buffer = this.data.audioBuffer;
         bufferSource.connect(this.stereoPannerNode);
+
+        bufferSource.loop = this.loop;
 
         return bufferSource;
     }
@@ -97,5 +101,14 @@ export class AudioClip {
         this.stereoPannerNode.pan.setValueAtTime(panLevel, 0);
 
         return this;
+    }
+
+    public Loop(loop?: boolean) {
+
+        this.audioBufferSourceNodes.forEach(function(node: AudioBufferSourceNode) {
+            node.loop = loop ?? true;
+        });
+
+        return this.loop = loop ?? true;
     }
 }
