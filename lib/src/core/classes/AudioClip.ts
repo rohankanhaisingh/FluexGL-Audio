@@ -19,11 +19,11 @@ export class AudioClip {
     public parentialAudioContext: AudioContext | null = null;
     public parentialChannel: Channel | null = null;
 
-    constructor(public data: AudioSourceData) {}
+    constructor(public data: AudioSourceData) { }
 
     private createBufferSource(): AudioBufferSourceNode | null {
 
-        if(!this.parentialAudioContext || !this.gainNode || !this.stereoPannerNode) return null;
+        if (!this.parentialAudioContext || !this.gainNode || !this.stereoPannerNode) return null;
 
         const context = this.parentialAudioContext;
 
@@ -64,48 +64,52 @@ export class AudioClip {
 
         const bufferSource: AudioBufferSourceNode | null = this.createBufferSource();
 
-        if(!bufferSource) return Debug.Error("Something went wrong while creating a buffer source.");
+        if (!bufferSource) return Debug.Error("Something went wrong while creating a buffer source.");
 
         this.audioBufferSourceNodes.push(bufferSource);
-        
+
         bufferSource.start(timestamp);
 
         bufferSource.addEventListener("ended", function () {
 
+            const i = self.audioBufferSourceNodes.indexOf(bufferSource);
+
             bufferSource.disconnect();
-            self.audioBufferSourceNodes.shift();
+            
+            if (i >= 0) 
+                return self.audioBufferSourceNodes.splice(i, 1);
         });
     }
 
     public SetVolume(volume: number): AudioClip | void {
 
-        if(!this.gainNode) return Debug.Error("Something went wrong while setting the volume.", [
+        if (!this.gainNode || !this.parentialAudioContext) return Debug.Error("Something went wrong while setting the volume.", [
             `Gain node on audio clip '${this.id}' is undefined.`
         ]);
 
-        this.gainNode.gain.setValueAtTime(volume, 0);
+        this.gainNode.gain.setValueAtTime(volume, this.parentialAudioContext.currentTime);
 
         return this;
     }
 
     public SetPanLevel(panLevel: number): AudioClip | void {
 
-        if(!this.stereoPannerNode) return Debug.Error("Something went wrong while setting the pan level", [
+        if (!this.stereoPannerNode || !this.parentialAudioContext) return Debug.Error("Something went wrong while setting the pan level", [
             `Stereo panner node on audio clip '${this.id}' is undefined`
         ]);
 
-        if(panLevel < -1 || panLevel > 1) return Debug.Error("Could not set the pan level because it is not between -1 and 1.", [
+        if (panLevel < -1 || panLevel > 1) return Debug.Error("Could not set the pan level because it is not between -1 and 1.", [
             "Provide this method with a value between -1 and 1"
         ]);
 
-        this.stereoPannerNode.pan.setValueAtTime(panLevel, 0);
+        this.stereoPannerNode.pan.setValueAtTime(panLevel, this.parentialAudioContext.currentTime);
 
         return this;
     }
 
     public Loop(loop?: boolean) {
 
-        this.audioBufferSourceNodes.forEach(function(node: AudioBufferSourceNode) {
+        this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
             node.loop = loop ?? true;
         });
 
