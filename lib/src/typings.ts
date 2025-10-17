@@ -1,5 +1,9 @@
 export type ChannelSpatialization = "mono" | "stereo" | "surround";
 
+export type AudioClipEvents  = {
+    [K in keyof AudioClipEventMap]: AudioClipEventMap[K][];
+}
+
 export interface FluexGLAudioDebuggerOptions {
     breakOnError: boolean;
     showInfo: boolean;
@@ -39,4 +43,16 @@ export interface ChannelOptions {
     label: string | null;
     maxAudioNodes: number;
     maxEffects: number;
+}
+
+export interface AudioClipOnProgressEvent {
+    startTime: number;
+    offset: number;
+    current: number;
+    contextTimestamp: number;
+    formatted: string;
+}
+
+export interface AudioClipEventMap {
+    "progress": (event: AudioClipOnProgressEvent) => void;
 }

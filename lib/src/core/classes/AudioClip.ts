@@ -1,16 +1,16 @@
 import { v4 } from "uuid";
+import { format } from "date-fns";
 
-import { AudioSourceData } from "../../typings";
+import { AudioClipEventMap, AudioClipEvents, AudioSourceData } from "../../typings";
 import { Debug } from "../../utilities/debugger";
 import { Channel } from "./Channel";
+
+type ProgressPayload = Parameters<AudioClipEventMap["progress"]>[0];
 
 export class AudioClip {
 
     public id: string = v4();
     public hasAttachedToChannel: boolean = false;
-
-    private audioBufferSourceNodes: AudioBufferSourceNode[] = [];
-    private maxAudioBufferSourceNodes: number = 1;
 
     public loop: boolean = false;
     public isPlaying: boolean = false;
@@ -22,6 +22,15 @@ export class AudioClip {
 
     public parentialAudioContext: AudioContext | null = null;
     public parentialChannel: Channel | null = null;
+
+    private audioBufferSourceNodes: AudioBufferSourceNode[] = [];
+    private maxAudioBufferSourceNodes: number = 1;
+
+    private progressInterval: number | null = 0;
+
+    private events: AudioClipEvents = {
+        "progress": []
+    }
 
     constructor(public data: AudioSourceData) { }
 
@@ -78,6 +87,30 @@ export class AudioClip {
         this.offsetAtStart = offset;
         this.isPlaying = true;
 
+        if(this.progressInterval) clearInterval(this.progressInterval);
+
+        if(this.isPlaying) this.progressInterval = setInterval(function() {
+
+            if(!self.isPlaying) return;
+
+            const current = self.offsetAtStart + (context.currentTime - self.startTime);
+            const date: Date = new Date(current * 1000);
+
+            const formattedTime = format(date, "mm:ss");
+
+            const progressPayload: ProgressPayload = {
+                current: parseFloat(current.toFixed(2)),
+                startTime: self.startTime,
+                offset: self.offsetAtStart,
+                contextTimestamp: context.currentTime,
+                formatted: formattedTime
+            }
+
+            self.events.progress.forEach(function(cb: (event: ProgressPayload) => void) {
+                cb(progressPayload);
+            });
+        }, 20);
+
         bufferSource.start(timestamp ?? this.startTime, offset);
 
         bufferSource.addEventListener("ended", function () {
@@ -86,7 +119,7 @@ export class AudioClip {
 
             bufferSource.disconnect();
 
-            if(i === 0) self.isPlaying = false;
+            if (i === 0) self.isPlaying = false;
 
             if (i >= 0)
                 return self.audioBufferSourceNodes.splice(i, 1);
@@ -146,10 +179,55 @@ export class AudioClip {
         });
     }
 
+    public AddEventListener<K extends keyof AudioClipEventMap>(event: K, cb: AudioClipEventMap[K]): () => void {
+
+        this.events[event].push(cb);
+
+        return () => this.RemoveEventListener(event, cb);
+    }
+
+    public Once<K extends keyof AudioClipEventMap>(event: K, cb: AudioClipEventMap[K]): () => void {
+
+        const wrapper = ((...args: unknown[]) => {
+
+            // @ts-ignore
+            cb(...args);
+
+            this.RemoveEventListener(event, wrapper as unknown as AudioClipEventMap[K]);
+        }) as unknown as AudioClipEventMap[K];
+
+        return this.AddEventListener(event, wrapper);
+    }
+
+    public RemoveEventListener<K extends keyof AudioClipEventMap>(event: K, cb: AudioClipEventMap[K]): AudioClip {
+
+        const arr = this.events[event];
+
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === cb) {
+                arr.splice(i, 1);
+                break;
+            }
+        }
+        return this;
+    }
+
+    public ClearEventListeners(event?: keyof AudioClipEventMap): AudioClip {
+
+        if (event) {
+            this.events[event].length = 0;
+        } else {
+            (Object.keys(this.events) as (keyof AudioClipEventMap)[]).forEach((k) => (this.events[k].length = 0));
+        }
+
+        return this;
+    }
+
     // Public getters and setters
+
     public get currentPlaybackTime(): number {
-        return (this.isPlaying || !this.parentialAudioContext) 
-            ? 0 
+        return (this.isPlaying || !this.parentialAudioContext)
+            ? 0
             : this.offsetAtStart + (this.parentialAudioContext.currentTime - this.startTime);
     }
 }

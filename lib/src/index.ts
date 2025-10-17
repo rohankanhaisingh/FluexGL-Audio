@@ -74,5 +74,8 @@ export {
     LoadAudioSourceOptions,
     AudioSourceData,
     ChannelOptions,
-    ChannelSpatialization
+    ChannelSpatialization,
+    AudioClipEventMap,
+    AudioClipEvents,
+    AudioClipOnProgressEvent
  } from "./typings";
