@@ -235,6 +235,13 @@ export class AudioClip {
         return this.data.audioBuffer.duration;
     }
     
+    public get formattedDuration(): string {
+
+        const date = new Date(this.duration * 1000);
+
+        return format(date, "mm:ss");
+    }
+
     public get sampleRate(): number {
         return this.data.audioBuffer.sampleRate;
     }
