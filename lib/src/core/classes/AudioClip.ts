@@ -27,7 +27,7 @@ export class AudioClip {
 
         const bufferSource = context.createBufferSource();
         bufferSource.buffer = this.data.audioBuffer;
-        bufferSource.connect(this.gainNode);
+        bufferSource.connect(this.stereoPannerNode);
 
         return bufferSource;
     }
@@ -80,6 +80,17 @@ export class AudioClip {
         ]);
 
         this.gainNode.gain.setValueAtTime(volume, 0);
+
+        return this;
+    }
+
+    public SetPanLevel(panLevel: number): AudioClip | void {
+
+        if(!this.stereoPannerNode) return Debug.Error("Something went wrong while setting the pan level", [
+            `Stereo panner node on audio clip '${this.id}' is undefined`
+        ]);
+
+        this.stereoPannerNode.pan.setValueAtTime(panLevel, 0);
 
         return this;
     }
