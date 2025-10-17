@@ -50,7 +50,8 @@ export {
     AudioDevice,
     Channel,
     Effector,
-    Master
+    Master,
+    AudioClip
 } from "./core/exports";
 
 export {
@@ -68,5 +69,10 @@ export {
 
 export { 
     FluexGLAudioDescriptor,
-    LoadAudioSourceOptions
+    FluexGLAudioDebuggerOptions,
+    FluexGLAudioOptions,
+    LoadAudioSourceOptions,
+    AudioSourceData,
+    ChannelOptions,
+    ChannelSpatialization
  } from "./typings";

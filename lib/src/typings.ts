@@ -28,6 +28,13 @@ export interface LoadAudioSourceOptions {
     allowForeignFileTypes: boolean;
 }
 
+export interface AudioSourceData {
+    arrayBuffer: ArrayBuffer;
+    audioBuffer: AudioBuffer;
+    id: string;
+    timestamp: number;
+}
+
 export interface ChannelOptions {
     label: string | null;
     maxAudioNodes: number;

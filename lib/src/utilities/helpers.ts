@@ -5,7 +5,8 @@ import { Debug } from "./debugger";
 import { ErrorCodes, WarningCodes } from "../console-codes";
 import { Channel } from "../core/classes/Channel";
 import { SUPPORTED_FILE_TYPES } from "./constants";
-import { LoadAudioSourceOptions } from "../typings";
+import { LoadAudioSourceOptions, AudioSourceData } from "../typings";
+import { v4 } from "uuid";
 
 export async function EnsureAudioPermission(): Promise<boolean> {
 
@@ -83,7 +84,7 @@ export async function ResolveDefaultAudioInputDevice(): Promise<AudioDevice | nu
     return devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
 }
 
-export async function LoadAudioSource(path: string, options: Partial<LoadAudioSourceOptions> = { allowForeignFileTypes: false }): Promise<ArrayBuffer | null> {
+export async function LoadAudioSource(path: string, options: Partial<LoadAudioSourceOptions> = { allowForeignFileTypes: false }): Promise<AudioSourceData | null> {
 
     const extension: string | null = mime.getType(path);
 
@@ -107,5 +108,16 @@ export async function LoadAudioSource(path: string, options: Partial<LoadAudioSo
         return null;
     }
 
-    return await file.arrayBuffer();
+    const tempContext = new AudioContext(),
+        arrayBuffer = await file.arrayBuffer(),
+        audioBuffer = await tempContext.decodeAudioData(arrayBuffer);
+
+    // IMPORTANT!
+    tempContext.close();
+
+    return {
+        arrayBuffer, audioBuffer,
+        id: v4(),
+        timestamp: Date.now()
+    }
 }
