@@ -226,8 +226,24 @@ export class AudioClip {
     // Public getters and setters
 
     public get currentPlaybackTime(): number {
-        return (this.isPlaying || !this.parentialAudioContext)
+        return (!this.isPlaying || !this.parentialAudioContext)
             ? 0
             : this.offsetAtStart + (this.parentialAudioContext.currentTime - this.startTime);
+    }
+
+    public get duration(): number {
+        return this.data.audioBuffer.duration;
+    }
+    
+    public get sampleRate(): number {
+        return this.data.audioBuffer.sampleRate;
+    }
+    
+    public get numberOfChannels(): number {
+        return this.data.audioBuffer.numberOfChannels;
+    }
+
+    public get byteLength(): number {
+        return this.data.arrayBuffer.byteLength;
     }
 }
