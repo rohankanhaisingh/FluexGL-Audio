@@ -11,6 +11,9 @@ export class AudioClip {
     public audioBufferSourceNodes: AudioBufferSourceNode[] = [];
     public maxAudioBufferSourceNodes: number = 1;
 
+    declare public gainNode: GainNode;
+    declare public stereoPannerNode: StereoPannerNode;
+
     declare public parentialAudioContext: AudioContext;
     declare public parentialChannel: Channel;
 
@@ -18,18 +21,24 @@ export class AudioClip {
 
     private createBufferSource(): AudioBufferSourceNode | null {
 
-        if(!this.parentialAudioContext) return null;
+        if(!this.parentialAudioContext || !this.gainNode || !this.stereoPannerNode) return null;
 
         const context = this.parentialAudioContext;
 
         const bufferSource = context.createBufferSource();
         bufferSource.buffer = this.data.audioBuffer;
-        bufferSource.connect(context.destination);
+        bufferSource.connect(this.gainNode);
 
         return bufferSource;
     }
 
     public InitializeAudioClipOnAttaching(channel: Channel): AudioClip {
+
+        this.gainNode = new GainNode(channel.context);
+        this.stereoPannerNode = new StereoPannerNode(channel.context);
+
+        this.gainNode.connect(channel.context.destination);
+        this.stereoPannerNode.connect(this.gainNode);
 
         this.parentialAudioContext = channel.context;
         this.parentialChannel = channel;
@@ -62,5 +71,16 @@ export class AudioClip {
             bufferSource.disconnect();
             self.audioBufferSourceNodes.shift();
         });
+    }
+
+    public SetVolume(volume: number): AudioClip | void {
+
+        if(!this.gainNode) return Debug.Error("Something went wrong while setting the volume.", [
+            `Gain node on audio clip '${this.id}' is undefined.`
+        ]);
+
+        this.gainNode.gain.setValueAtTime(volume, 0);
+
+        return this;
     }
 }
