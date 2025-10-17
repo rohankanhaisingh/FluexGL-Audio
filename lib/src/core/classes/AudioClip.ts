@@ -13,6 +13,9 @@ export class AudioClip {
     private maxAudioBufferSourceNodes: number = 1;
 
     public loop: boolean = false;
+    public isPlaying: boolean = false;
+    public startTime: number = 0;
+    public offsetAtStart: number = 0;
 
     public gainNode: GainNode | null = null;
     public stereoPannerNode: StereoPannerNode | null = null;
@@ -21,6 +24,8 @@ export class AudioClip {
     public parentialChannel: Channel | null = null;
 
     constructor(public data: AudioSourceData) { }
+
+    // Private methods.
 
     private createBufferSource(): AudioBufferSourceNode | null {
 
@@ -37,6 +42,8 @@ export class AudioClip {
         return bufferSource;
     }
 
+    // Public methods
+
     public InitializeAudioClipOnAttaching(channel: Channel): AudioClip {
 
         this.gainNode = new GainNode(channel.context);
@@ -52,7 +59,7 @@ export class AudioClip {
         return this;
     }
 
-    public Play(timestamp?: number) {
+    public Play(timestamp?: number, offset = 0) {
 
         if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not play the audio node because it is not attached to a channel", [
             "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
@@ -67,9 +74,11 @@ export class AudioClip {
 
         if (!bufferSource) return Debug.Error("Something went wrong while creating a buffer source.");
 
-        this.audioBufferSourceNodes.push(bufferSource);
+        this.startTime = context.currentTime;
+        this.offsetAtStart = offset;
+        this.isPlaying = true;
 
-        bufferSource.start(timestamp);
+        bufferSource.start(timestamp ?? this.startTime, offset);
 
         bufferSource.addEventListener("ended", function () {
 
@@ -77,9 +86,14 @@ export class AudioClip {
 
             bufferSource.disconnect();
 
+            if(i === 0) self.isPlaying = false;
+
             if (i >= 0)
                 return self.audioBufferSourceNodes.splice(i, 1);
+
         });
+
+        this.audioBufferSourceNodes.push(bufferSource);
     }
 
     public SetVolume(volume: number): AudioClip | void {
@@ -130,5 +144,12 @@ export class AudioClip {
         return this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
             node.disconnect();
         });
+    }
+
+    // Public getters and setters
+    public get currentPlaybackTime(): number {
+        return (this.isPlaying || !this.parentialAudioContext) 
+            ? 0 
+            : this.offsetAtStart + (this.parentialAudioContext.currentTime - this.startTime);
     }
 }
