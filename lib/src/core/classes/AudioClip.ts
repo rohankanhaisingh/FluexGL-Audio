@@ -13,11 +13,11 @@ export class AudioClip {
 
     public loop: boolean = false;
 
-    declare public gainNode: GainNode;
-    declare public stereoPannerNode: StereoPannerNode;
+    public gainNode: GainNode | null = null;
+    public stereoPannerNode: StereoPannerNode | null = null;
 
-    declare public parentialAudioContext: AudioContext;
-    declare public parentialChannel: Channel;
+    public parentialAudioContext: AudioContext | null = null;
+    public parentialChannel: Channel | null = null;
 
     constructor(public data: AudioSourceData) {}
 
@@ -54,7 +54,7 @@ export class AudioClip {
     public Play(timestamp?: number) {
 
         if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not play the audio node because it is not attached to a channel", [
-            "Call 'AttachAudioNode([node AudioNode])' on a channel, before playing this audio node."
+            "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
         ]);
 
         const context = this.parentialAudioContext;
