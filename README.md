@@ -12,7 +12,9 @@ It integrates smoothly with FluexGL, making it ideal for use in games, interacti
 
 ## 📦 Installation
 
-Coming soon
+```
+$ npm install @fluexgl/dsp
+```
 
 ## ⚡ Quick start
 
@@ -25,7 +27,7 @@ import {
     Channel, 
     AudioSourceData, 
     AudioClip 
-} from "@fluexgl/audio";
+} from "@fluexgl/dsp";
 
 (async function() {
 
@@ -52,14 +54,14 @@ import {
     masterChannel.AttachChannel(channel);
 
     // Load the data from the audio source.
-    const audioSourceData: AudioSourceData | null = await LoadAudioSource("/assets/data/bruh.mp3");
+    const audioSourceData: AudioSourceData | null = await LoadAudioSource("Beautiful Background Music.mp3");
 
     if(!audioSourceData) return;
 
-    // Create a audio node based on the data.
+    // Create a audio clip based on the data.
     const audioClip = new AudioClip(audioSourceData);
 
-    // Attach the audio node to the channel.
+    // Attach the audio clip to the channel.
     channel.AttachAudioClip(audioClip);
 
     // Click event listener on window.
