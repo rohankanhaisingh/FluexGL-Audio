@@ -129,6 +129,30 @@ export class AudioClip {
         this.audioBufferSourceNodes.push(bufferSource);
     }
 
+    public Stop() {
+
+        if (!this.hasAttachedToChannel || !this.parentialAudioContext) return Debug.Error("Could not stop the audio node because it is not attached to a channel", [
+            "Call 'AttachAudioClip([node AudioNode])' on a channel, before stopping this audio node."
+        ]);
+
+        this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
+
+            node.stop();
+            node.disconnect();
+        });
+
+        this.audioBufferSourceNodes.length = 0;
+        this.isPlaying = false;
+
+        if (this.progressInterval) {
+
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
+        }
+
+		return this;
+    }
+
     public SetVolume(volume: number): AudioClip | void {
 
         if (!this.gainNode || !this.parentialAudioContext) return Debug.Error("Something went wrong while setting the volume.", [
