@@ -68,30 +68,40 @@ export class AudioClip {
         return this;
     }
 
-    public Play(timestamp?: number, offset = 0) {
+    public Play(timestamp?: number, offset = 0): AudioClip | null {
 
-        if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not play the audio node because it is not attached to a channel", [
-            "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
-        ]);
+        if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) {
+
+            Debug.Error("Could not play the audio node because it is not attached to a channel", [
+                "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
+            ]);
+
+            return null;
+        }
 
         const context = this.parentialAudioContext;
         const self = this;
 
-        if (this.audioBufferSourceNodes.length > this.maxAudioBufferSourceNodes - 1) return;
+        if (this.audioBufferSourceNodes.length > this.maxAudioBufferSourceNodes - 1) return null;
 
         const bufferSource: AudioBufferSourceNode | null = this.createBufferSource();
 
-        if (!bufferSource) return Debug.Error("Something went wrong while creating a buffer source.");
+        if (!bufferSource) {
+
+            Debug.Error("Something went wrong.");
+
+            return null;
+        }
 
         this.startTime = context.currentTime;
         this.offsetAtStart = offset;
         this.isPlaying = true;
 
-        if(this.progressInterval) clearInterval(this.progressInterval);
+        if (this.progressInterval) clearInterval(this.progressInterval);
 
-        if(this.isPlaying) this.progressInterval = setInterval(function() {
+        if (this.isPlaying) this.progressInterval = setInterval(function () {
 
-            if(!self.isPlaying) return;
+            if (!self.isPlaying) return;
 
             const current = self.offsetAtStart + (context.currentTime - self.startTime);
             const date: Date = new Date(current * 1000);
@@ -106,7 +116,7 @@ export class AudioClip {
                 formatted: formattedTime
             }
 
-            self.events.progress.forEach(function(cb: (event: ProgressPayload) => void) {
+            self.events.progress.forEach(function (cb: (event: ProgressPayload) => void) {
                 cb(progressPayload);
             });
         }, 20);
@@ -127,13 +137,20 @@ export class AudioClip {
         });
 
         this.audioBufferSourceNodes.push(bufferSource);
+
+        return this;
     }
 
-    public Stop() {
+    public Stop(): AudioClip | null {
 
-        if (!this.hasAttachedToChannel || !this.parentialAudioContext) return Debug.Error("Could not stop the audio node because it is not attached to a channel", [
-            "Call 'AttachAudioClip([node AudioNode])' on a channel, before stopping this audio node."
-        ]);
+        if (!this.hasAttachedToChannel || !this.parentialAudioContext) {
+
+            Debug.Error("Could not stop the audio node because it is not attached to a channel", [
+                "Call 'AttachAudioClip([node AudioNode])' on a channel, before stopping this audio node."
+            ]);
+
+            return null;
+        }
 
         this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
 
@@ -150,7 +167,7 @@ export class AudioClip {
             this.progressInterval = null;
         }
 
-		return this;
+        return this;
     }
 
     public SetVolume(volume: number): AudioClip | void {
@@ -175,32 +192,36 @@ export class AudioClip {
         ]);
 
         this.stereoPannerNode.pan.setValueAtTime(panLevel, this.parentialAudioContext.currentTime);
-
         return this;
     }
 
-    public Loop(loop?: boolean) {
+    public Loop(loop?: boolean): AudioClip {
 
         this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
             node.loop = loop ?? true;
         });
 
-        return this.loop = loop ?? true;
+        this.loop = loop ?? true;
+        return this;
     }
 
-    public SetMaxAudioBufferSourceNodes(value: number) {
+    public SetMaxAudioBufferSourceNodes(value: number): AudioClip {
 
         Debug.Warn("Changing the amount of buffer source nodes may cause some properties of this class instance to work inproperly.", [
             "The default value is 1."
         ]);
 
-        return this.maxAudioBufferSourceNodes = value;
+        this.maxAudioBufferSourceNodes = value;
+        return this;
     }
 
-    public DisconnectAllAudioBufferSourceNodes(): void {
-        return this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
+    public DisconnectAllAudioBufferSourceNodes(): AudioClip {
+
+        this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
             node.disconnect();
         });
+
+        return this;
     }
 
     public AddEventListener<K extends keyof AudioClipEventMap>(event: K, cb: AudioClipEventMap[K]): () => void {
