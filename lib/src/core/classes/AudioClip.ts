@@ -70,20 +70,12 @@ export class AudioClip {
 
     public Play(timestamp?: number, offset = 0): AudioClip | null {
 
-<<<<<<< HEAD
-        if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not play the audio node because it is not attached to a channel", [
-            "Call 'AttachAudioClip([clip AudioClip])' on a channel, before playing this audio node."
-        ]);
-=======
         if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) {
-
             Debug.Error("Could not play the audio node because it is not attached to a channel", [
-                "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
+                "Call 'AttachAudioClip([clip AudioClip])' on a channel, before playing this audio node."
             ]);
-
-            return null;
+            return this;
         }
->>>>>>> cc584a42b7ab73a6c48c0653d09efe86173660eb
 
         const context = this.parentialAudioContext;
         const self = this;
@@ -175,26 +167,6 @@ export class AudioClip {
 
         return this;
     }
-
-    public Stop() {
-
-        if(!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not stop the audio clip because it is not attached to a channel.", [
-            "Call 'AttachAudioClip([clip AudioClip]) before stopping this audio clip."
-        ]);
-
-        this.startTime = 0;
-        this.offsetAtStart = 0;
-        this.isPlaying = false;
-
-        const contextCurrentTime: number = this.parentialAudioContext?.currentTime;
-
-        this.audioBufferSourceNodes.forEach(function(node: AudioBufferSourceNode) {
-
-            node.stop(contextCurrentTime);
-            node.disconnect();
-        })
-    }
-
     public SetVolume(volume: number): AudioClip | void {
 
         if (!this.gainNode || !this.parentialAudioContext) return Debug.Error("Something went wrong while setting the volume.", [
@@ -304,7 +276,7 @@ export class AudioClip {
     public get duration(): number {
         return this.data.audioBuffer.duration;
     }
-    
+
     public get formattedDuration(): string {
 
         const date = new Date(this.duration * 1000);
@@ -315,7 +287,7 @@ export class AudioClip {
     public get sampleRate(): number {
         return this.data.audioBuffer.sampleRate;
     }
-    
+
     public get numberOfChannels(): number {
         return this.data.audioBuffer.numberOfChannels;
     }
