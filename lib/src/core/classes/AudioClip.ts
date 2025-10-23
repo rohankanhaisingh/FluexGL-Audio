@@ -71,7 +71,7 @@ export class AudioClip {
     public Play(timestamp?: number, offset = 0) {
 
         if (!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not play the audio node because it is not attached to a channel", [
-            "Call 'AttachAudioClip([node AudioNode])' on a channel, before playing this audio node."
+            "Call 'AttachAudioClip([clip AudioClip])' on a channel, before playing this audio node."
         ]);
 
         const context = this.parentialAudioContext;
@@ -127,6 +127,25 @@ export class AudioClip {
         });
 
         this.audioBufferSourceNodes.push(bufferSource);
+    }
+
+    public Stop() {
+
+        if(!this.hasAttachedToChannel || !this.parentialAudioContext || !this.parentialChannel) return Debug.Error("Could not stop the audio clip because it is not attached to a channel.", [
+            "Call 'AttachAudioClip([clip AudioClip]) before stopping this audio clip."
+        ]);
+
+        this.startTime = 0;
+        this.offsetAtStart = 0;
+        this.isPlaying = false;
+
+        const contextCurrentTime: number = this.parentialAudioContext?.currentTime;
+
+        this.audioBufferSourceNodes.forEach(function(node: AudioBufferSourceNode) {
+
+            node.stop(contextCurrentTime);
+            node.disconnect();
+        })
     }
 
     public SetVolume(volume: number): AudioClip | void {
