@@ -276,6 +276,11 @@ export class AudioClip {
         return this;
     }
 
+    public GetChannelData(channel: number = 0): Float32Array<ArrayBuffer> {
+
+        return this.data.audioBuffer.getChannelData(channel);
+    }
+
     // Public getters and setters
 
     public get currentPlaybackTime(): number {
