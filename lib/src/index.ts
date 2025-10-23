@@ -79,5 +79,5 @@ export {
     AudioClipEvents,
     AudioClipOnProgressEvent,
     AudioClipAnalyserProperty,
-    AudioClipAnalyserType
+    AudioClipAnalyserType,
  } from "./typings";

@@ -31,7 +31,13 @@ export class AudioClip {
 
     public preAnalyserOptions: AnalyserOptions = {};
     public postAnalyserOptions: AnalyserOptions = {};
-
+    
+    public preAnalyserFloatArrayBuffer = new Float32Array();
+    public postAnalyserFloatArrayBuffer = new Float32Array();
+    
+    public preAnalyserByteArrayBuffer = new Uint8Array();
+    public postAnalyserByteArrayBuffer = new Uint8Array();
+    
     private audioBufferSourceNodes: AudioBufferSourceNode[] = [];
     private maxAudioBufferSourceNodes: number = 1;
 
@@ -427,6 +433,29 @@ export class AudioClip {
         }
 
         return true;
+    }
+
+    public GetWaveformFloatData(analyserType: AudioClipAnalyserType): Float32Array | null {
+
+        if(!this.preAnalyser || !this.postAnalyser) {
+
+            Debug.Error("Could not get floating waveform data because the pre analyser or post analyser has not been enabled.", [
+                "Call .EnablePreAnalyser() or .EnablePostAnalyser() before getting waveform data."
+            ]);
+
+            return null;
+        }
+
+        switch(analyserType) {
+            case "pre":
+                this.preAnalyser.getFloatTimeDomainData(this.preAnalyserFloatArrayBuffer);
+                return this.preAnalyserFloatArrayBuffer;
+            case "post":
+                this.postAnalyser.getFloatFrequencyData(this.postAnalyserFloatArrayBuffer);
+                return this.postAnalyserFloatArrayBuffer;
+            default: 
+                return null;
+        }
     }
 
     // Public getters and setters
