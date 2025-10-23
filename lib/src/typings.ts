@@ -1,5 +1,8 @@
 export type ChannelSpatialization = "mono" | "stereo" | "surround";
 
+export type AudioClipAnalyserType = "pre" | "post";
+export type AudioClipAnalyserProperty = "fftSize" | "minDecibels" | "maxDecibels" | "smoothingTimeConstant";
+
 export type AudioClipEvents  = {
     [K in keyof AudioClipEventMap]: AudioClipEventMap[K][];
 }

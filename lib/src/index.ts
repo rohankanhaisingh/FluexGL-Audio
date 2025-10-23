@@ -77,5 +77,7 @@ export {
     ChannelSpatialization,
     AudioClipEventMap,
     AudioClipEvents,
-    AudioClipOnProgressEvent
+    AudioClipOnProgressEvent,
+    AudioClipAnalyserProperty,
+    AudioClipAnalyserType
  } from "./typings";

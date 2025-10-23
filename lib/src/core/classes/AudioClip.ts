@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { format } from "date-fns";
 
-import { AudioClipEventMap, AudioClipEvents, AudioSourceData } from "../../typings";
+import { AudioClipAnalyserProperty, AudioClipAnalyserType, AudioClipEventMap, AudioClipEvents, AudioSourceData } from "../../typings";
 import { Debug } from "../../utilities/debugger";
 import { Channel } from "./Channel";
 
@@ -23,6 +23,15 @@ export class AudioClip {
     public parentialAudioContext: AudioContext | null = null;
     public parentialChannel: Channel | null = null;
 
+    public preAnalyser: AnalyserNode | null = null;
+    public postAnalyser: AnalyserNode | null = null;
+
+    public preAnalyserEnabled: boolean = false;
+    public postAnalyserEnabled: boolean = false;
+
+    public preAnalyserOptions: AnalyserOptions = {};
+    public postAnalyserOptions: AnalyserOptions = {};
+
     private audioBufferSourceNodes: AudioBufferSourceNode[] = [];
     private maxAudioBufferSourceNodes: number = 1;
 
@@ -38,17 +47,65 @@ export class AudioClip {
 
     private createBufferSource(): AudioBufferSourceNode | null {
 
-        if (!this.parentialAudioContext || !this.gainNode || !this.stereoPannerNode) return null;
+        if (!this.parentialAudioContext) return null;
 
         const context = this.parentialAudioContext;
 
         const bufferSource = context.createBufferSource();
         bufferSource.buffer = this.data.audioBuffer;
-        bufferSource.connect(this.stereoPannerNode);
-
         bufferSource.loop = this.loop;
 
         return bufferSource;
+    }
+
+    private connectSourcesTo(target: AudioNode) {
+        for (const src of this.audioBufferSourceNodes) {
+            src.disconnect();
+            src.connect(target);
+        }
+    }
+
+    private safeDisconnect(node?: AudioNode | null) {
+        node?.disconnect();
+    }
+
+    private rebuildNodeChain() {
+
+        if (!this.parentialAudioContext || !this.gainNode || !this.stereoPannerNode) {
+
+            Debug.Error("rebuildNodeChain: missing context or core nodes (gain/panner).");
+            return false;
+        }
+
+        const ctx = this.parentialAudioContext;
+        const dest = ctx.destination;
+
+        this.safeDisconnect(this.gainNode);
+        this.safeDisconnect(this.stereoPannerNode);
+        this.safeDisconnect(this.preAnalyser);
+        this.safeDisconnect(this.postAnalyser);
+
+        let entry: AudioNode = this.gainNode;
+
+        if (this.preAnalyserEnabled && this.preAnalyser) {
+
+            entry = this.preAnalyser;
+            this.preAnalyser.connect(this.gainNode);
+        }
+
+        this.gainNode.connect(this.stereoPannerNode);
+
+        if (this.postAnalyserEnabled && this.postAnalyser) {
+
+            this.stereoPannerNode.connect(this.postAnalyser);
+            this.postAnalyser.connect(dest);
+        } else {
+
+            this.stereoPannerNode.connect(dest);
+        }
+
+        this.connectSourcesTo(entry);
+        return true;
     }
 
     // Public methods
@@ -119,8 +176,6 @@ export class AudioClip {
             });
         }, 20);
 
-        bufferSource.start(timestamp ?? this.startTime, offset);
-
         bufferSource.addEventListener("ended", function () {
 
             const i = self.audioBufferSourceNodes.indexOf(bufferSource);
@@ -135,6 +190,9 @@ export class AudioClip {
         });
 
         this.audioBufferSourceNodes.push(bufferSource);
+        this.rebuildNodeChain();
+
+        bufferSource.start(timestamp ?? this.startTime, offset);
 
         return this;
     }
@@ -214,7 +272,7 @@ export class AudioClip {
 
     public DisconnectAllAudioBufferSourceNodes(): boolean {
 
-        if(!this.parentialAudioContext) {
+        if (!this.parentialAudioContext) {
             Debug.Error("Could not disconnect audio buffer source nodes, because the parential audio contex has not been found", [
                 `Clip ID: ${this.id}`,
                 `Parential channel id: ${this.parentialChannel ? this.parentialChannel.id : "none"}`
@@ -225,7 +283,7 @@ export class AudioClip {
         const contextCurrentTime: number = this.parentialAudioContext?.currentTime;
 
         this.audioBufferSourceNodes.forEach(function (node: AudioBufferSourceNode) {
-            node.stop();
+            node.stop(contextCurrentTime);
             node.disconnect();
         });
 
@@ -276,9 +334,99 @@ export class AudioClip {
         return this;
     }
 
-    public GetChannelData(channel: number = 0): Float32Array<ArrayBuffer> {
+    public GetChannelData(channel: number = 0): Float32Array {
 
         return this.data.audioBuffer.getChannelData(channel);
+    }
+
+    public EnablePreAnalyser(): boolean {
+
+        if (!this.parentialAudioContext || !this.parentialChannel || !this.hasAttachedToChannel) {
+            Debug.Error("EnablePreAnalyser: clip niet aan channel gekoppeld.");
+            return false;
+        }
+
+        if (!this.preAnalyser)
+            this.preAnalyser = new AnalyserNode(this.parentialAudioContext, this.preAnalyserOptions);
+
+        this.preAnalyserEnabled = true;
+        return this.rebuildNodeChain();
+    }
+
+    public DisablePreAnalyser() {
+
+        this.preAnalyserEnabled = false;
+        return this.rebuildNodeChain();
+    }
+
+    public EnablePostAnalyser() {
+
+        if (!this.parentialAudioContext || !this.parentialChannel || !this.hasAttachedToChannel) {
+
+            Debug.Error("EnablePostAnalyser: clip niet aan channel gekoppeld.");
+            return false;
+        }
+
+        if (!this.postAnalyser)
+            this.postAnalyser = new AnalyserNode(this.parentialAudioContext, this.postAnalyserOptions);
+
+        this.postAnalyserEnabled = true;
+        return this.rebuildNodeChain();
+    }
+
+    public DisablePostAnalyser() {
+
+        this.postAnalyserEnabled = false;
+        return this.rebuildNodeChain();
+    }
+
+    public SetPreAnalyserOptions(options: AnalyserOptions) {
+
+        this.preAnalyserOptions = { ...options };
+
+        if (!this.preAnalyser) return;
+
+        this.preAnalyser.fftSize = options.fftSize ?? this.preAnalyser.fftSize;
+        this.preAnalyser.minDecibels = options.minDecibels ?? this.preAnalyser.minDecibels;
+        this.preAnalyser.maxDecibels = options.maxDecibels ?? this.preAnalyser.maxDecibels;
+        this.preAnalyser.smoothingTimeConstant = options.smoothingTimeConstant ?? this.preAnalyser.smoothingTimeConstant;
+    }
+
+    public SetPostAnalyserOptions(options: AnalyserOptions) {
+
+        this.postAnalyserOptions = { ...options };
+
+        if (!this.postAnalyser) return;
+
+        this.postAnalyser.fftSize = options.fftSize ?? this.postAnalyser.fftSize;
+        this.postAnalyser.minDecibels = options.minDecibels ?? this.postAnalyser.minDecibels;
+        this.postAnalyser.maxDecibels = options.maxDecibels ?? this.postAnalyser.maxDecibels;
+        this.postAnalyser.smoothingTimeConstant = options.smoothingTimeConstant ?? this.postAnalyser.smoothingTimeConstant;
+    }
+
+    public SetAnalyserOption(analyserType: AudioClipAnalyserType, property: AudioClipAnalyserProperty, value: number) {
+
+        const node = analyserType === "pre" ? this.preAnalyser : this.postAnalyser;
+        
+        if (node) switch (property) {
+            case "fftSize": node.fftSize = value as AnalyserNode["fftSize"]; break;
+            case "minDecibels": node.minDecibels = value; break;
+            case "maxDecibels": node.maxDecibels = value; break;
+            case "smoothingTimeConstant": node.smoothingTimeConstant = value; break;
+            default: return false;
+        }
+
+        const opts = analyserType === "pre" ? this.preAnalyserOptions : this.postAnalyserOptions;
+        
+        switch (property) {
+            case "fftSize": opts.fftSize = value as AnalyserNode["fftSize"]; break;
+            case "minDecibels": opts.minDecibels = value; break;
+            case "maxDecibels": opts.maxDecibels = value; break;
+            case "smoothingTimeConstant": opts.smoothingTimeConstant = value; break;
+            default: return false;
+        }
+
+        return true;
     }
 
     // Public getters and setters
