@@ -11,10 +11,9 @@ export class AudioDevice {
     public timestamp: number = Date.now();
 
     public masterChannel: Master = new Master();
+    public masterChannels: Master[] = [];
 
-    constructor(public deviceInfo: MediaDeviceInfo) {
-
-    }
+    constructor(public deviceInfo: MediaDeviceInfo) {}
 
     public GetMasterChannel(): Master {
         return this.masterChannel;
@@ -28,5 +27,13 @@ export class AudioDevice {
         ], ErrorCodes.SAME_MASTER_CHANNEL);
 
         this.masterChannel = channel;
+    }
+
+    public CreateMasterChannel(): Master {
+
+        const master = new Master();
+
+        this.masterChannels.push(master);
+        return master;
     }
 }
