@@ -8,7 +8,7 @@ import { FluexGLAudioDescriptor } from "./typings";
 export const FluexGLAudio: FluexGLAudioDescriptor = {
     name: "FluexGL Audio",
     author: "Rohan Kanhaisingh",
-    version: "0.0.1",
+    version: "0.0.2",
     license: "MIT",
     repository: "https://github.com/rohankanhaisingh/FluexGL-Audio",
     options: {
