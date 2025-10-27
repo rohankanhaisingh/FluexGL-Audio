@@ -458,6 +458,29 @@ export class AudioClip {
         }
     }
 
+    public GetWaveformByteData(analyserType: AudioClipAnalyserType): Uint8Array | null {
+
+        if(!this.preAnalyser || !this.postAnalyser) {
+
+            Debug.Error("Could not get byte waveform data because the pre analyser or post analyser has not been enabled.", [
+                "Call .EnablePreAnalyser() or .EnablePostAnalyser() before getting waveform data."
+            ]);
+
+            return null;
+        }
+
+        switch(analyserType) {
+            case "pre":
+                this.preAnalyser.getByteTimeDomainData(this.preAnalyserByteArrayBuffer);
+                return this.preAnalyserByteArrayBuffer;
+            case "post":
+                this.postAnalyser.getByteTimeDomainData(this.postAnalyserByteArrayBuffer);
+                return this.postAnalyserByteArrayBuffer;
+            default: 
+                return null;
+        }
+    }
+
     // Public getters and setters
 
     public get currentPlaybackTime(): number {
