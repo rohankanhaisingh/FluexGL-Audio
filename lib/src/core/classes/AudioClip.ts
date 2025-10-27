@@ -355,6 +355,9 @@ export class AudioClip {
         if (!this.preAnalyser)
             this.preAnalyser = new AnalyserNode(this.parentialAudioContext, this.preAnalyserOptions);
 
+        this.preAnalyserFloatArrayBuffer = new Float32Array(this.preAnalyser.fftSize);
+        this.preAnalyserByteArrayBuffer = new Uint8Array(this.preAnalyser.fftSize);
+
         this.preAnalyserEnabled = true;
         return this.rebuildNodeChain();
     }
@@ -375,6 +378,9 @@ export class AudioClip {
 
         if (!this.postAnalyser)
             this.postAnalyser = new AnalyserNode(this.parentialAudioContext, this.postAnalyserOptions);
+
+        this.postAnalyserFloatArrayBuffer = new Float32Array(this.postAnalyser.fftSize);
+        this.postAnalyserByteArrayBuffer = new Uint8Array(this.postAnalyser.fftSize);
 
         this.postAnalyserEnabled = true;
         return this.rebuildNodeChain();
@@ -437,25 +443,15 @@ export class AudioClip {
 
     public GetWaveformFloatData(analyserType: AudioClipAnalyserType): Float32Array | null {
 
-        if(!this.preAnalyser || !this.postAnalyser) {
-
-            Debug.Error("Could not get floating waveform data because the pre analyser or post analyser has not been enabled.", [
-                "Call .EnablePreAnalyser() or .EnablePostAnalyser() before getting waveform data."
-            ]);
-
-            return null;
+        if(analyserType === "pre" && this.preAnalyser) {
+            this.preAnalyser.getFloatTimeDomainData(this.preAnalyserFloatArrayBuffer);
+            return this.preAnalyserFloatArrayBuffer;
+        } else if(analyserType === "post" && this.postAnalyser) {
+            this.postAnalyser.getFloatTimeDomainData(this.postAnalyserFloatArrayBuffer);
+            return this.postAnalyserFloatArrayBuffer;
         }
 
-        switch(analyserType) {
-            case "pre":
-                this.preAnalyser.getFloatTimeDomainData(this.preAnalyserFloatArrayBuffer);
-                return this.preAnalyserFloatArrayBuffer;
-            case "post":
-                this.postAnalyser.getFloatFrequencyData(this.postAnalyserFloatArrayBuffer);
-                return this.postAnalyserFloatArrayBuffer;
-            default: 
-                return null;
-        }
+        return null;
     }
 
     public GetWaveformByteData(analyserType: AudioClipAnalyserType): Uint8Array | null {
