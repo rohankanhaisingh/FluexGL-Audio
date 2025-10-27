@@ -3,18 +3,23 @@ import { v4 } from "uuid";
 import { Effector } from "./Effector";
 import { AudioClip } from "./AudioClip";
 
-import { ChannelOptions, AudioSourceData } from "../../typings";
+import { ChannelOptions } from "../../typings";
 import { Debug } from "../../utilities/debugger";
+import { Master } from "./Master";
 
 export class Channel {
 
     public id: string = v4();
     public effects: Effector[] = [];
-    public context: AudioContext = new AudioContext();
-
     public label: string | null;
 
+    public parentialContext: AudioContext | null = null;
+    public parentialMasterChannel: Master | null = null;
+
     public audioClips: AudioClip[] = [];
+
+    public gainNode: GainNode | null = null;
+    public stereoPannerNode: StereoPannerNode | null = null;
 
     constructor(public options: Partial<ChannelOptions> = {
         maxAudioNodes: 8,
@@ -22,6 +27,18 @@ export class Channel {
     }) {
 
         this.label = options.label ?? null;
+    }
+
+    public InitializeChannelOnMasterAttachment(master: Master) {
+
+        this.parentialMasterChannel = master;
+        this.parentialContext = master.context;
+
+        this.gainNode = new GainNode(this.parentialContext);
+        this.stereoPannerNode = new StereoPannerNode(this.parentialContext);
+
+        this.gainNode.connect(this.parentialContext.destination);
+        this.stereoPannerNode.connect(this.gainNode);
     }
 
     public SetLabel(label: string): void {

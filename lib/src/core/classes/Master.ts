@@ -16,8 +16,9 @@ export class Master {
             "Call .DetachChannel([channel Channel]) before attaching the channel."
         ]);
 
-        this.channels.push(channel);
+        channel.InitializeChannelOnMasterAttachment(this);
 
+        this.channels.push(channel);
         return;
     }
 
@@ -30,8 +31,11 @@ export class Master {
         const self = this;
 
         this.channels.forEach(function(_channel: Channel, index: number) {
-            if(channel.id === _channel.id)
-                return self.channels.splice(index, 1);
+            if(channel.id === _channel.id) {
+
+                self.channels.splice(index, 1);
+                return;
+            }
         });
     }
 }

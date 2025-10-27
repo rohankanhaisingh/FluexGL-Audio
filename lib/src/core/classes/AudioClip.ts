@@ -116,15 +116,23 @@ export class AudioClip {
 
     // Public methods
 
-    public InitializeAudioClipOnAttaching(channel: Channel): AudioClip {
+    public InitializeAudioClipOnAttaching(channel: Channel): AudioClip | null {
 
-        this.gainNode = new GainNode(channel.context);
-        this.stereoPannerNode = new StereoPannerNode(channel.context);
+        if(!channel.parentialContext || !channel.gainNode) {
 
-        this.gainNode.connect(channel.context.destination);
+            Debug.Error("Could not initialize audio clip on channel attachment, because channel it's master channel has not been defined.", [
+                `Call .AttachChannel([channel<"${channel.id}"> Channel]) on the master channel.`
+            ]);
+            return null;
+        }
+
+        this.gainNode = new GainNode(channel.parentialContext);
+        this.stereoPannerNode = new StereoPannerNode(channel.parentialContext);
+
+        this.gainNode.connect(channel.gainNode);
         this.stereoPannerNode.connect(this.gainNode);
 
-        this.parentialAudioContext = channel.context;
+        this.parentialAudioContext = channel.parentialContext;
         this.parentialChannel = channel;
         this.hasAttachedToChannel = true;
 
