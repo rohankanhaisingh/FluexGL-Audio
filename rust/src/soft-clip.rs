@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 pub fn soft_clip(buffer &mut [f32], clip_level: f32) {
     for sample in buffer.iter_mut() {
         if *sample > clip_level {
