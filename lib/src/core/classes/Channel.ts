@@ -37,7 +37,7 @@ export class Channel {
         this.gainNode = new GainNode(this.parentialContext);
         this.stereoPannerNode = new StereoPannerNode(this.parentialContext);
 
-        this.gainNode.connect(this.parentialContext.destination);
+        this.gainNode.connect(this.parentialMasterChannel.gainNode);
         this.stereoPannerNode.connect(this.gainNode);
     }
 
@@ -84,5 +84,35 @@ export class Channel {
             if(clip.id === _clip.id)
                 return self.audioClips.splice(index, 1);
         });
+    }
+
+    public SetVolume(volume: number): void {
+        
+        if(!this.gainNode) return Debug.Error("Could not set channel volume because the channel is not attached to a master channel.", [
+            "Attach the channel to a master channel before setting the volume."
+        ]);
+
+        this.gainNode.gain.setValueAtTime(volume, this.parentialContext!.currentTime);
+    }
+
+    public SetPanLevel(pan: number): void {
+
+        if(!this.stereoPannerNode) return Debug.Error("Could not set channel pan level because the channel is not attached to a master channel.", [
+            "Attach the channel to a master channel before setting the pan level."
+        ]);
+
+        this.stereoPannerNode.pan.setValueAtTime(pan, this.parentialContext!.currentTime);
+    }
+
+    public get volume(): number | null {
+
+        if(!this.gainNode) return null;
+        return this.gainNode.gain.value;
+    }
+
+    public get panLevel(): number | null {
+
+        if(!this.stereoPannerNode) return null;
+        return this.stereoPannerNode.pan.value;
     }
 }

@@ -10,6 +10,15 @@ export class Master {
     public channels: Channel[] = [];
     public context: AudioContext = new AudioContext();
 
+    public gainNode: GainNode = this.context.createGain();
+    public analyserNode: AnalyserNode = this.context.createAnalyser();
+
+    constructor() {
+     
+        this.gainNode.connect(this.analyserNode);
+        this.analyserNode.connect(this.context.destination);
+    }
+
     public AttachChannel(channel: Channel): void {
 
         if(this.channels.includes(channel)) return Debug.Error("Could not attach the channel because it is already part of this master channel.",[
