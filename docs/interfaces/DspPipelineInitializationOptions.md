@@ -10,7 +10,7 @@ export interface DspPipelineInitializationOptions {
 
 ## About
 
-The `DspPipelineInitializationOptions` interface specifies options used when initializing the DSP pipeline through the [`InitializeDspPipeline()`](../functions/InitializeDspPipeline.md) function.  
+The `DspPipelineInitializationOptions` interface specifies options used when initializing the DSP pipeline through the [`InitializeDspPipeline()`](../helpers/InitializeDspPipeline.md) function.  
 It primarily defines the location of the WebAssembly file required by the DSP system.
 
 ## Properties
