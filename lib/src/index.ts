@@ -61,7 +61,8 @@ export {
     ResolveAudioInputDevices,
     ResolveDefaultAudioInputDevice,
     ResolveDefaultAudioOutputDevice,
-    LoadAudioSource
+    LoadAudioSource,
+    LoadWorkletSourceAsScript
 } from "./utilities/helpers";
 
 export {
@@ -69,8 +70,8 @@ export {
 } from "./utilities/constants";
 
 export {
-    LoadWorkletAsScript
-} from "./utilities/worklet-loader";
+    WorkletSources
+} from "./worklets/exports";
 
 export {
     FluexGLWasmDSP
@@ -89,4 +90,5 @@ export {
     AudioClipOnProgressEvent,
     AudioClipAnalyserProperty,
     AudioClipAnalyserType,
+    DspPipelineInitializationOptions
 } from "./typings";

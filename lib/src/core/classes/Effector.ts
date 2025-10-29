@@ -11,10 +11,7 @@ export abstract class Effector {
 
     protected wasmInstance: any;
 
-    public InitializeOnAttachment(parentialContext: AudioContext): void {
-
-    }
-
+    public abstract InitializeOnAttachment(parentialContext: AudioContext): Promise<void>;
     public abstract Initialize(): Promise<void>;
     public abstract Process(buffer: Float32Array): void;
 }

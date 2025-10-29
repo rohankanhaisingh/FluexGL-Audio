@@ -59,3 +59,7 @@ export interface AudioClipOnProgressEvent {
 export interface AudioClipEventMap {
     "progress": (event: AudioClipOnProgressEvent) => void;
 }
+
+export interface DspPipelineInitializationOptions {
+    pathToWasmFileInServer: string;
+}

@@ -5,7 +5,7 @@ import { AudioDevice } from "../core/classes/AudioDevice";
 import { Debug } from "./debugger";
 import { ErrorCodes, WarningCodes } from "../console-codes";
 import { SUPPORTED_FILE_TYPES } from "./constants";
-import { LoadAudioSourceOptions, AudioSourceData } from "../typings";
+import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
 import { FluexGLWasmDSP } from "../wasm";
 
 /**
@@ -15,7 +15,7 @@ import { FluexGLWasmDSP } from "../wasm";
  * FluexGL DSP cannot be used without calling this function first.
  * @returns 
  */
-export async function InitializeDspPipeline(): Promise<boolean> {
+export async function InitializeDspPipeline(options: DspPipelineInitializationOptions): Promise<boolean> {
 
     let initialized: boolean = true;
 
@@ -40,11 +40,36 @@ export async function InitializeDspPipeline(): Promise<boolean> {
     } catch (err) {
 
         initialized = false;
-        
+
         Debug.Error("WASM module could not be initialized.", [
             "Make sure the WASM files are correctly hosted and accessible."
         ], ErrorCodes.WASM_MODULE_INITIALIZATION_FAILED);
     }
+
+    try {
+
+        const wasmFile = await fetch(options.pathToWasmFileInServer as string, { method: "HEAD" });
+
+        if (wasmFile.status !== 200) {
+
+            initialized = false;
+
+            Debug.Error("The specified path to the WASM file could not be found in the server.", [
+                `Received status code: ${wasmFile.status}.`,
+                `Make sure the path '${options.pathToWasmFileInServer}' is correct and the file is accessible.`
+            ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
+        }
+
+    } catch (err) {
+
+        initialized = false;
+
+        Debug.Error("The specified path to the WASM file could not be found in the server.", [
+            `Make sure the path '${options.pathToWasmFileInServer}' is correct and the file is accessible.`
+        ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
+    }
+
+    FluexGLWasmDSP.pathToWasmFileInServer = options.pathToWasmFileInServer;
 
     return initialized;
 }
@@ -161,4 +186,11 @@ export async function LoadAudioSource(path: string, options: Partial<LoadAudioSo
         id: v4(),
         timestamp: Date.now()
     }
+}
+
+export function LoadWorkletSourceAsScript(source: string) {
+
+    const blob = new Blob([source], { type: "application/javascript" });
+
+    return URL.createObjectURL(blob);
 }

@@ -12,6 +12,15 @@ export class SoftClip extends Effector {
         console.log(this.wasmInstance);
     }
 
+    public async InitializeOnAttachment(parentialContext: AudioContext): Promise<void> {
+
+        this.parentialContext = parentialContext;
+
+        this.gainNode = this.parentialContext.createGain();
+
+        this.gainNode.gain.value = 1;
+    }
+
     public Process(buffer: Float32Array): void {
 
         // Simple soft clipping algorithm

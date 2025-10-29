@@ -3,6 +3,8 @@ import { v4 } from "uuid";
 import { Channel } from "./Channel";
 
 import { Debug } from "../../utilities/debugger";
+import { LoadWorkletSourceAsScript } from "../../utilities/helpers";
+import { WorkletSources } from "../../worklets/exports";
 
 export class Master {
 
@@ -21,7 +23,7 @@ export class Master {
 
     public async InitializeAudioWorklets() {
 
-        // await this.context.audioWorklet.addModule("fluexgl-dsp-worklets/SoftClipProcessor.js");
+        await this.context.audioWorklet.addModule(LoadWorkletSourceAsScript(WorkletSources.SoftClipProcessorWorklet));
     }
 
     public AttachChannel(channel: Channel): void {

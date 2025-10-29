@@ -1,5 +1,4 @@
 import init, { SoftClip } from "../_dist/wasm/fluex_dsp";
-import wasm from "../_dist/wasm/fluex_dsp_bg.wasm";
 
 import { Debug } from "./utilities/debugger";
 
@@ -7,11 +6,22 @@ let wasmInitialized = false;
 
 export namespace FluexGLWasmDSP { 
 
+    export let pathToWasmFileInServer: string | null = null;
+
+    /**
+     * Sets the path to the WASM file located in the server.
+     * @param path 
+     */
+    export function SetPathToWasmFileInServer(path: string): void {
+        pathToWasmFileInServer = path;
+    }
+
     export async function InitializeModule(): Promise<void> {
         
         if(!wasmInitialized) {
 
-            await init();
+            const output = await init();
+
             wasmInitialized = true;
         }
     }
