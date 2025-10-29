@@ -1,0 +1,65 @@
+import { SoftClip } from "../../_dist/wasm/fluex_dsp_wasm.js";
+
+class SoftClipProcessor extends AudioWorkletProcessor {
+
+    static get parameterDescriptors() {
+        return [
+            {
+                name: 'drive',
+                defaultValue: 1.0,
+                minValue: 0.1,
+                maxValue: 32.0,
+                automationRate: 'k-rate'
+            }
+        ];
+    }
+
+    constructor() {
+        super();
+
+        const self = this;
+
+        this.softClip = new SoftClip(1.0);
+
+        this.port.onmessage = function(event) {
+
+            const { type, value } = event.data || {};
+
+            switch(type) {
+                case "setDrive":
+                    self.softClip.set_drive(value);
+                    break;
+            }
+        }
+    }
+
+    process(inputs, outputs, parameters) {
+
+        const input = inputs[0];
+        const output = outputs[0];
+        
+        if (input.length === 0 || output.length === 0) {
+            return true;
+        }
+
+        const driveValues = parameters.drive;
+        
+        for(let channel = 0; channel < output.length; channel++) {
+
+            const inputChannel = (input && input[channel]) ? input[channel] : null;
+            const outputChannel = output[channel];
+
+            if(inputChannel) 
+                outputChannel.set(inputChannel);
+
+            this.softClip.process(outputChannel);
+        }
+
+        if(driveValues.length > 1) 
+            this.softClip.set_drive(driveValues[0]);
+
+        return true;
+    }
+}
+
+registerProcessor('SoftClipProcessor', SoftClipProcessor);

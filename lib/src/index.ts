@@ -69,10 +69,14 @@ export {
 } from "./utilities/constants";
 
 export {
+    LoadWorkletAsScript
+} from "./utilities/worklet-loader";
+
+export {
     FluexGLWasmDSP
 } from "./wasm";
 
-export { 
+export {
     FluexGLAudioDescriptor,
     FluexGLAudioDebuggerOptions,
     FluexGLAudioOptions,
@@ -85,4 +89,4 @@ export {
     AudioClipOnProgressEvent,
     AudioClipAnalyserProperty,
     AudioClipAnalyserType,
- } from "./typings";
+} from "./typings";

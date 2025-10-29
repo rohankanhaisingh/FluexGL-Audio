@@ -1,4 +1,6 @@
 import init, { SoftClip } from "../_dist/wasm/fluex_dsp";
+import wasm from "../_dist/wasm/fluex_dsp_bg.wasm";
+
 import { Debug } from "./utilities/debugger";
 
 let wasmInitialized = false;

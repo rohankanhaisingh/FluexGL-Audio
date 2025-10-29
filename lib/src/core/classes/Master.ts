@@ -19,6 +19,11 @@ export class Master {
         this.analyserNode.connect(this.context.destination);
     }
 
+    public async InitializeAudioWorklets() {
+
+        // await this.context.audioWorklet.addModule("fluexgl-dsp-worklets/SoftClipProcessor.js");
+    }
+
     public AttachChannel(channel: Channel): void {
 
         if(this.channels.includes(channel)) return Debug.Error("Could not attach the channel because it is already part of this master channel.",[

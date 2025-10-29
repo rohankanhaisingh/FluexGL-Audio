@@ -101,6 +101,32 @@ export class Channel {
         this.stereoPannerNode.pan.setValueAtTime(pan, this.parentialContext!.currentTime);
     }
 
+    public AddEffect(effect: Effector): void {
+
+        if(this.effects.includes(effect)) return Debug.Error("Could not add effect because it is already part of this channel", [
+            "Call .RemoveEffect([effect Effector]) before adding effect."
+        ]);
+
+        effect.InitializeOnAttachment(this.parentialContext!);
+        this.effects.push(effect);
+    }
+
+    public RemoveEffect(effect: Effector): void {
+
+        if(!this.effects.includes(effect)) return Debug.Error("Could not remove effect, because it is not part of this channel.", [
+            "Call .AddEffect([effect Effector]) before removing effect."
+        ]);
+
+        const self: Channel = this;
+
+        this.effects.forEach(function(_effect: Effector, index: number) {
+            if(effect.id === _effect.id)
+                return self.effects.splice(index, 1);
+        });
+    }
+
+    // Public getters and setters
+
     public get volume(): number | null {
 
         if(!this.gainNode) return null;
