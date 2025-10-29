@@ -7,14 +7,28 @@ By following the methods below, you can easily set up your Webpack project.
 
 ## ``webpack.config.js``
 
-Webpack 5 or higher is required to use the following module rule.
-If you’re using Webpack 4 or lower, you can use the raw-loader instead.
+Webpack 5 or higher is required to use the following module rules.
+If you’re using Webpack 4 or lower, you can use raw-loader instead.
 
-```js
+Webpack will include the associated WebAssembly file in the build process and place it in the configured output directory. Ensure the WebAssembly filename is static, because you must provide the file’s path when initializing the library with ``InitializeDspPipeline()`` function.
+
+The name of the file is normally ``fluex_dsp_bg.wasm``.
+
+```json
 {
     test: /\.worklet$/,
     type: "asset/source"
 },
+```
+
+```js
+{
+    test: /\.wasm$/,
+    type: "asset/resource",
+    generator: {
+        filename: "[name][ext]"
+    }
+}
 ```
 
 This rule will make Webpack read the associated .worklet files as text files.

@@ -3,7 +3,7 @@
 An important helper function within FluexGL DSP. 
 
 ```ts
-async function InitializeDspPipeline(): Promise<boolean>;
+async function InitializeDspPipeline(options: DspPipelineInitializationOptions): Promise<boolean>;
 ```
 
 ## About
@@ -13,8 +13,9 @@ The ``InitializeDspPipeline()`` function is the most important function of the e
 This function will throw an error if the user has not granted permission to FluexGL DSP to access media devices, or if the WASM modules could not be initialized. The error code would be either ``FLUEXGL@AUDIO_ERROR_0001`` or ``FLUEXGL@AUDIO_ERROR_0005``.
 
 **Note! This function is asynchroneous, which means you have to call it within a asynchroneous scope.**
+
 ## Parameters
-This function requires no arguments.
+- ``options``: [``DspPipelineInitializationOptions``](../interfaces/DspPipelineInitializationOptions.md)
 
 ## Returns ``boolean``
 This function returns a boolean wrapped in a Promise object, representing the state of the initialization. 
@@ -26,7 +27,9 @@ import { InitializeDspPipeline } from "@fluexgl/dsp";
 
 async function main() {
 
-    const hasInitialized: boolean = await InitializeDspPipeline();
+    const hasInitialized: boolean = await InitializeDspPipeline({
+        pathToWasmFileInServer: "/assets/_dist/fluex_dsp_bg.wasm"
+    });
 
     if(!hasInitialized) return console.log("Aawh man, could not initialize the DSP pipeline".);
 
