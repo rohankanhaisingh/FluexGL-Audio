@@ -21,10 +21,7 @@ export class Channel {
     public gainNode: GainNode | null = null;
     public stereoPannerNode: StereoPannerNode | null = null;
 
-    constructor(public options: Partial<ChannelOptions> = {
-        maxAudioNodes: 8,
-        maxEffects: 8
-    }) {
+    constructor(public options: Partial<ChannelOptions> = { maxAudioNodes: 8, maxEffects: 8 }) {
 
         this.label = options.label ?? null;
     }

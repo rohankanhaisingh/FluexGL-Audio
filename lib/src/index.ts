@@ -56,7 +56,7 @@ export {
 } from "./core/exports";
 
 export {
-    EnsureAudioPermission,
+    InitializeDspPipeline,
     ResolveAudioOutputDevices,
     ResolveAudioInputDevices,
     ResolveDefaultAudioInputDevice,
