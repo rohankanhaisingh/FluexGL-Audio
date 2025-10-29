@@ -43,7 +43,8 @@ export {
     ConvolverReverb,
     GenericReverb,
     HallReverb,
-    RoomReverb
+    RoomReverb,
+    SoftClip
 } from "./effects/exports";
 
 export {
