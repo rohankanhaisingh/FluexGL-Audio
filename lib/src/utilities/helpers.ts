@@ -1,16 +1,23 @@
 import mime from "mime";
+import { v4 } from "uuid";
 
 import { AudioDevice } from "../core/classes/AudioDevice";
 import { Debug } from "./debugger";
 import { ErrorCodes, WarningCodes } from "../console-codes";
-import { Channel } from "../core/classes/Channel";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 import { LoadAudioSourceOptions, AudioSourceData } from "../typings";
-import { v4 } from "uuid";
+import { FluexGLWasmDSP } from "../wasm";
 
-export async function EnsureAudioPermission(): Promise<boolean> {
+/**
+ * Initializes the DSP pipeline by requesting audio permissions and initializing the WASM module.
+ * Very important to call this function and wait for it to complete before using any audio features.
+ * 
+ * FluexGL DSP cannot be used without calling this function first.
+ * @returns 
+ */
+export async function InitializeDspPipeline(): Promise<boolean> {
 
-    let canEnumerateDevices: boolean = true;
+    let initialized: boolean = true;
 
     try {
 
@@ -20,16 +27,32 @@ export async function EnsureAudioPermission(): Promise<boolean> {
             track.stop();
         });
     } catch (err) {
-        canEnumerateDevices = false;
+
+        initialized = false;
+
+        Debug.Error("Permission to access media devices has not been granted.", [
+            "Make sure the user has granted FluentGL permission to access media devices."
+        ], ErrorCodes.NO_CONTEXT_PERMISSION)
     }
 
-    if (!canEnumerateDevices) Debug.Error("Permission to access media devices has not been granted.", [
-        "Make sure the user has granted FluentGL permission to access media devices."
-    ], ErrorCodes.NO_CONTEXT_PERMISSION)
+    try {
+        await FluexGLWasmDSP.InitializeModule();
+    } catch (err) {
 
-    return canEnumerateDevices;
+        initialized = false;
+        
+        Debug.Error("WASM module could not be initialized.", [
+            "Make sure the WASM files are correctly hosted and accessible."
+        ], ErrorCodes.WASM_MODULE_INITIALIZATION_FAILED);
+    }
+
+    return initialized;
 }
 
+/**
+ * Resolves a list of available audio output devices.
+ * @returns 
+ */
 export async function ResolveAudioOutputDevices(): Promise<AudioDevice[]> {
 
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -42,6 +65,10 @@ export async function ResolveAudioOutputDevices(): Promise<AudioDevice[]> {
     return audioDevices;
 }
 
+/**
+ * Resolves a list of available audio input devices.
+ * @returns 
+ */
 export async function ResolveAudioInputDevices(): Promise<AudioDevice[]> {
 
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -54,6 +81,10 @@ export async function ResolveAudioInputDevices(): Promise<AudioDevice[]> {
     return audioDevices;
 }
 
+/**
+ * Resolves the default audio output device.
+ * @returns 
+ */
 export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | null> {
 
     const audioDeviceInfos: MediaDeviceInfo[] = [];
@@ -69,6 +100,10 @@ export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | n
     return devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
 }
 
+/**
+ * Resolves the default audio input device.
+ * @returns 
+ */
 export async function ResolveDefaultAudioInputDevice(): Promise<AudioDevice | null> {
 
     const audioDeviceInfos: MediaDeviceInfo[] = [];
@@ -84,6 +119,12 @@ export async function ResolveDefaultAudioInputDevice(): Promise<AudioDevice | nu
     return devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
 }
 
+/**
+ * Loads an audio source from a specified path.
+ * @param path 
+ * @param options 
+ * @returns 
+ */
 export async function LoadAudioSource(path: string, options: Partial<LoadAudioSourceOptions> = { allowForeignFileTypes: false }): Promise<AudioSourceData | null> {
 
     const extension: string | null = mime.getType(path);
@@ -100,8 +141,8 @@ export async function LoadAudioSource(path: string, options: Partial<LoadAudioSo
 
     const file = await fetch(path, { method: "get" });
 
-    if(file.status !== 200) {
-        
+    if (file.status !== 200) {
+
         Debug.Error("The specified file could not be loaded.", [
             `Received status code: ${file.status}.`
         ], ErrorCodes.PATH_TO_FILE_NOT_FOUND);
