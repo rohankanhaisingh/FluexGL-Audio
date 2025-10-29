@@ -21,7 +21,7 @@ $ npm install @fluexgl/dsp
 ```ts
 import { 
     AudioDevice, 
-    EnsureAudioPermission, 
+    InitializeDspPipeline, 
     LoadAudioSource, 
     ResolveDefaultAudioOutputDevice, 
     Channel, 
@@ -32,9 +32,9 @@ import {
 (async function() {
 
     // Make sure that FluexGL can access audio devices.
-    const canAccessAudioDevices = await EnsureAudioPermission();
+    const hasInitialized = await InitializeDspPipeline();
 
-    if(!canAccessAudioDevices) return null;
+    if(!hasInitialized) return null;
 
     // Resolves the default audio output device.
     const audioDevice: AudioDevice | null = await ResolveDefaultAudioOutputDevice();
@@ -54,14 +54,14 @@ import {
     masterChannel.AttachChannel(channel);
 
     // Load the data from the audio source.
-    const audioSourceData: AudioSourceData | null = await LoadAudioSource("Beautiful Background Music.mp3");
+    const audioSourceData: AudioSourceData | null = await LoadAudioSource("/assets/data/bruh.mp3");
 
     if(!audioSourceData) return;
 
-    // Create a audio clip based on the data.
+    // Create a audio node based on the data.
     const audioClip = new AudioClip(audioSourceData);
 
-    // Attach the audio clip to the channel.
+    // Attach the audio node to the channel.
     channel.AttachAudioClip(audioClip);
 
     // Click event listener on window.
