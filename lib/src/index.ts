@@ -67,6 +67,10 @@ export {
     SUPPORTED_FILE_TYPES
 } from "./utilities/constants";
 
+export {
+    FluexGLWasmDSP
+} from "./wasm";
+
 export { 
     FluexGLAudioDescriptor,
     FluexGLAudioDebuggerOptions,
