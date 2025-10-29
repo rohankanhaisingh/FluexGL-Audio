@@ -1,0 +1,15 @@
+{
+  "name": "fluexgl-dsp-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "fluex_dsp_bg.wasm",
+    "fluex_dsp.js",
+    "fluex_dsp.d.ts"
+  ],
+  "main": "fluex_dsp.js",
+  "types": "fluex_dsp.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

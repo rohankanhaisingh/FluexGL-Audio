@@ -141,8 +141,4 @@ vite.config.ts.timestamp-*
 .vite/
 .vs
 
-lib/wasm/Cargo.toml
-lib/wasm/src/**
-
-lib/_dist/**
- */
+lib/wasm/target/
