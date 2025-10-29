@@ -77,3 +77,39 @@ import {
 FluexGL DSP provides built-in such as effects, tools, and utilities for advanced web audio processing, such as reverbs, delays, and stereo imaging effects.
 
 The library also includes a powerful debugging system that allows developers to inspect and analyze the audio pipeline for easier troubleshooting and optimization.
+
+## Web Assembly
+
+FluexGL DSP is partially made using Web Assembly, and Rust as programming language. In order to use FluexGL DSP, the wasm source code must be built, which can be done using the following steps.
+
+### Requirements
+
+The Rust toolchainer must be installed, in order to install the other tools.
+
+```
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+```
+$ rustup target add wasm32-unknown-unknown
+```
+
+```
+$ cargo install wasm-bindgen-cli
+```
+
+```
+$ cargo install wasm-pack
+```
+
+Optional:
+```
+$ sudo apt-get install -y binaryen
+```
+
+### NPM scripts
+
+This command will build the entire project.
+```
+$ npm run build
+```
