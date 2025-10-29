@@ -10,7 +10,7 @@ By following the methods below, you can easily set up your Webpack project.
 Webpack 5 or higher is required to use the following module rule.
 If you’re using Webpack 4 or lower, you can use the raw-loader instead.
 
-```json
+```js
 {
     test: /\.worklet$/,
     type: "asset/source"
