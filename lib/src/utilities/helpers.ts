@@ -9,6 +9,7 @@ import { SUPPORTED_FILE_TYPES } from "./constants";
 
 import { FluexGLWasmDSP } from "../wasm";
 import { ErrorCodes, WarningCodes } from "../console-codes";
+import { WorkletSources } from "../worklets/exports";
 
 import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
 
@@ -73,7 +74,7 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
         ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
     }
 
-    FluexGLWasmDSP.pathToWasmFileInServer = options.pathToWasm;
+    FluexGLWasmDSP.pathToWasm = options.pathToWasm;
 
     return initialized;
 }
@@ -209,5 +210,20 @@ export async function LoadWorkletModules(master: Master) {
 
     const context = master.context;
 
+    Debug.Log("Loading audio worklet modules...");
+    
+    if(!FluexGLWasmDSP.pathToWasm) return Debug.Error("Could not load worklet modules because path to WASM file is not set.", [
+        "Make sure to call 'InitializeDspPipeline' before loading worklet modules."
+    ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
+
+    await context.audioWorklet.addModule(LoadWorkletSourceAsScript(WorkletSources.SoftClipProcessorWorklet));
+
+    const softClipNode = new AudioWorkletNode(context, "SoftClipProcessor", {
+        processorOptions: {
+            pathToWasm: FluexGLWasmDSP.pathToWasm,
+        }
+    });
+
+    softClipNode.connect(master.gainNode);
     
 }

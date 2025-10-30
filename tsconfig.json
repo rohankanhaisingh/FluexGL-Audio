@@ -2,14 +2,15 @@
   "compilerOptions": {
     "rootDir": "./lib/src",
     "outDir": "./lib/dist",
-    "module": "commonjs",
+    "module": "es2022",
     "target": "es2022",
+    "moduleResolution": "bundler",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
+    "resolveJsonModule": false,
     "strict": true,
     "skipLibCheck": true,
     "types": [],
@@ -28,6 +29,7 @@
   ],
   "exclude": [
     "lib/test",
-    "node_modules"
+    "node_modules",
+    "scripts"
   ]
 }

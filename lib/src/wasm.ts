@@ -6,14 +6,17 @@ let wasmInitialized = false;
 
 export namespace FluexGLWasmDSP { 
 
-    export let pathToWasmFileInServer: string | null = null;
+    export const physicalWasmFilePath = new URL("../_dist/wasm/fluex_dsp_bg.wasm", import.meta.url);
+    export const physicalWasmJsFilePath = new URL("../_dist/wasm/fluex_dsp.js", import.meta.url);
+
+    export let pathToWasm: string | null = null;
 
     /**
      * Sets the path to the WASM file located in the server.
      * @param path 
      */
     export function SetPathToWasmFileInServer(path: string): void {
-        pathToWasmFileInServer = path;
+        pathToWasm = path;
     }
 
     export async function InitializeModule(): Promise<void> {

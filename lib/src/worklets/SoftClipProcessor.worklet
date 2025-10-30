@@ -1,78 +1,28 @@
-import { SoftClip } from "../../_dist/wasm/fluex_dsp.js";
-
-async function loadWasm(url) {
-
-    const mod = await import(url);
-
-    if (typeof mod.default === 'function') {
-        
-        const wasmUrl = glueUrl.replace(/\.js(\?.*)?$/, '_bg.wasm$1');
-
-        await mod.default(wasmUrl);
-    }
-    return mod.SoftClip ?? mod.SoftClipper ?? mod.default;
-}
-
 class SoftClipProcessor extends AudioWorkletProcessor {
-
-    static get parameterDescriptors() {
-        return [
-            {
-                name: 'drive',
-                defaultValue: 1.0,
-                minValue: 0.1,
-                maxValue: 32.0,
-                automationRate: 'k-rate'
-            }
-        ];
-    }
+    clip = null;
 
     constructor() {
         super();
 
-        const self = this;
+        this.port.onmessage = async (e) => {
+            const { type, wasmUrl } = e.data || {};
+            if (type === "init" && wasmUrl) {
 
-        this.softClip = new SoftClip(1.0);
+                await __wbg_init(wasmUrl);
 
-        this.port.onmessage = function (event) {
+                this.clip = new SoftClip(1.0);
+                this.port.postMessage({ type: "ready" });
 
-            const { type, value } = event.data || {};
-
-            switch (type) {
-                case "setDrive":
-                    self.softClip.set_drive(value);
-                    break;
             }
-        }
+        };
     }
 
-    process(inputs, outputs, parameters) {
-
-        const input = inputs[0];
-        const output = outputs[0];
-
-        if (input.length === 0 || output.length === 0) {
-            return true;
-        }
-
-        const driveValues = parameters.drive;
-
-        for (let channel = 0; channel < output.length; channel++) {
-
-            const inputChannel = (input && input[channel]) ? input[channel] : null;
-            const outputChannel = output[channel];
-
-            if (inputChannel)
-                outputChannel.set(inputChannel);
-
-            this.softClip.process(outputChannel);
-        }
-
-        if (driveValues.length > 1)
-            this.softClip.set_drive(driveValues[0]);
-
+    process(inputs, outputs) {
+        if (!this.clip) return true;
+        const outL = outputs?.[0]?.[0];
+        if (outL) this.clip.process(outL);
         return true;
     }
 }
 
-registerProcessor('SoftClipProcessor', SoftClipProcessor);
+registerProcessor("softclip-processor", SoftClipProcessor);
