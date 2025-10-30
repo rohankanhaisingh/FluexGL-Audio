@@ -14,15 +14,15 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly dsp_version: () => [number, number];
   readonly __wbg_softclip_free: (a: number, b: number) => void;
   readonly softclip_new: (a: number) => number;
   readonly softclip_process: (a: number, b: number, c: number, d: any) => void;
   readonly softclip_get_drive: (a: number) => number;
   readonly softclip_set_drive: (a: number, b: number) => void;
+  readonly dsp_version: () => [number, number];
   readonly __wbindgen_externrefs: WebAssembly.Table;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
+  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_start: () => void;
 }
 
