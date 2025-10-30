@@ -68,6 +68,10 @@ export {
     SUPPORTED_FILE_TYPES
 } from "./utilities/constants";
 
+export {
+    hasInitializedWasm,
+    LoadWorkletOnMasterChannel
+} from "./web-assembly";
 
 export {
     FluexGLAudioDescriptor,

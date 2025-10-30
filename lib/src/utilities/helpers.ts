@@ -6,6 +6,7 @@ import { AudioDevice } from "../core/classes/AudioDevice";
 import { Debug } from "./debugger";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 
+import { LoadWorkletOnMasterChannel } from "../web-assembly";
 import { ErrorCodes, WarningCodes } from "../console-codes";
 
 import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
@@ -36,6 +37,7 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
             "Make sure the user has granted FluentGL permission to access media devices."
         ], ErrorCodes.NO_CONTEXT_PERMISSION)
     }
+
     return initialized;
 }
 
@@ -90,6 +92,8 @@ export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | n
     const defaultAudioDevice = devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
 
     if(!defaultAudioDevice) return null;
+
+    await LoadWorkletOnMasterChannel(defaultAudioDevice.masterChannel);
 
     return defaultAudioDevice;
 }

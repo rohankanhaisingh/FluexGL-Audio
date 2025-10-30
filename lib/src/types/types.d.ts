@@ -1,8 +1,3 @@
-declare module "*.worklet" {
-    const content: string;
-    export default content;
-}
-
 declare module "../_dist/wasm/fluex_dsp.js" {
     
   export default function init(module_or_path?: any): Promise<any>;

@@ -4,13 +4,6 @@
     "description": "An audio library which works with FluexGL",
     "main": "index.js",
     "scripts": {
-        "wasm:dev": "sh -c 'cd lib/wasm && wasm-pack build --dev --target web --out-dir ../_dist/wasm --out-name fluex_dsp'",
-        "watch:wasm": "sh -c 'cd lib/wasm && cargo watch -w src -s \"wasm-pack build --dev --target web --out-dir ../_dist/wasm --out-name fluex_dsp\"'",
-        "ps-watch:wasm": "powershell -Command \"cd lib/wasm; cargo watch -w src -s 'wasm-pack build --dev --target web --out-dir ../_dist/wasm --out-name fluex_dsp'\"",
-        "dev": "concurrently -n WEB,RUST -c \"npm:watch:wasm\"",
-        "wasm:rel": "sh -c 'cd lib/wasm && wasm-pack build --release --target web --out-dir ../_dist/wasm --out-name fluex_dsp'",
-        "wasm:opt": "sh -c 'wasm-opt -Oz -o lib/_dist/wasm/fluex_dsp_bg.wasm lib/_dist/wasm/fluex_dsp_bg.wasm'",
-        "build": "npm run wasm:rel && npm run wasm:opt",
         "typecheck": "tsc -p lib/tsconfig.json --noEmit"
     },
     "keywords": [
