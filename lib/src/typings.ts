@@ -61,5 +61,5 @@ export interface AudioClipEventMap {
 }
 
 export interface DspPipelineInitializationOptions {
-    pathToWasmFileInServer: string;
+    pathToWasm: string;
 }

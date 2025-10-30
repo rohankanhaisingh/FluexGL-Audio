@@ -48,7 +48,7 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
 
     try {
 
-        const wasmFile = await fetch(options.pathToWasmFileInServer as string, { method: "HEAD" });
+        const wasmFile = await fetch(options.pathToWasm as string, { method: "HEAD" });
 
         if (wasmFile.status !== 200) {
 
@@ -56,7 +56,7 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
 
             Debug.Error("The specified path to the WASM file could not be found in the server.", [
                 `Received status code: ${wasmFile.status}.`,
-                `Make sure the path '${options.pathToWasmFileInServer}' is correct and the file is accessible.`
+                `Make sure the path '${options.pathToWasm}' is correct and the file is accessible.`
             ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
         }
 
@@ -65,11 +65,11 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
         initialized = false;
 
         Debug.Error("The specified path to the WASM file could not be found in the server.", [
-            `Make sure the path '${options.pathToWasmFileInServer}' is correct and the file is accessible.`
+            `Make sure the path '${options.pathToWasm}' is correct and the file is accessible.`
         ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
     }
 
-    FluexGLWasmDSP.pathToWasmFileInServer = options.pathToWasmFileInServer;
+    FluexGLWasmDSP.pathToWasmFileInServer = options.pathToWasm;
 
     return initialized;
 }
