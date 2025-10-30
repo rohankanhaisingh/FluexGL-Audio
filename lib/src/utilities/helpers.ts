@@ -2,11 +2,15 @@ import mime from "mime";
 import { v4 } from "uuid";
 
 import { AudioDevice } from "../core/classes/AudioDevice";
+import { Master } from "../core/classes/Master";
+
 import { Debug } from "./debugger";
-import { ErrorCodes, WarningCodes } from "../console-codes";
 import { SUPPORTED_FILE_TYPES } from "./constants";
-import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
+
 import { FluexGLWasmDSP } from "../wasm";
+import { ErrorCodes, WarningCodes } from "../console-codes";
+
+import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
 
 /**
  * Initializes the DSP pipeline by requesting audio permissions and initializing the WASM module.
@@ -122,7 +126,13 @@ export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | n
 
     devices.length === 0 && Debug.Warn("No default audio device found.", [], WarningCodes.NO_DEFAULT_AUDIO_DEVICE_FOUND);
 
-    return devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
+    const defaultAudioDevice = devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
+
+    if(!defaultAudioDevice) return null;
+
+    await LoadWorkletModules(defaultAudioDevice.masterChannel);
+
+    return defaultAudioDevice;
 }
 
 /**
@@ -193,4 +203,11 @@ export function LoadWorkletSourceAsScript(source: string) {
     const blob = new Blob([source], { type: "application/javascript" });
 
     return URL.createObjectURL(blob);
+}
+
+export async function LoadWorkletModules(master: Master) {
+
+    const context = master.context;
+
+    
 }

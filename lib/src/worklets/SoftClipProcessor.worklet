@@ -1,4 +1,4 @@
-// import { SoftClip } from "../../_dist/wasm/fluex_dsp.js";
+import { SoftClip } from "../../_dist/wasm/fluex_dsp.js";
 
 async function loadWasm(url) {
 

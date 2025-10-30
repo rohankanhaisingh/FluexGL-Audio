@@ -62,7 +62,8 @@ export {
     ResolveDefaultAudioInputDevice,
     ResolveDefaultAudioOutputDevice,
     LoadAudioSource,
-    LoadWorkletSourceAsScript
+    LoadWorkletSourceAsScript,
+    LoadWorkletModules
 } from "./utilities/helpers";
 
 export {
