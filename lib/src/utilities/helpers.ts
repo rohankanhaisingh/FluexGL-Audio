@@ -9,7 +9,9 @@ import { SUPPORTED_FILE_TYPES } from "./constants";
 
 import { FluexGLWasmDSP } from "../wasm";
 import { ErrorCodes, WarningCodes } from "../console-codes";
+
 import { WorkletSources } from "../worklets/exports";
+import { WORKLETS } from "../worklets/generated";
 
 import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
 
@@ -216,7 +218,7 @@ export async function LoadWorkletModules(master: Master) {
         "Make sure to call 'InitializeDspPipeline' before loading worklet modules."
     ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
 
-    await context.audioWorklet.addModule(LoadWorkletSourceAsScript(WorkletSources.SoftClipProcessorWorklet));
+    await context.audioWorklet.addModule(LoadWorkletSourceAsScript(WORKLETS["SoftClipProcessor"]));
 
     const softClipNode = new AudioWorkletNode(context, "SoftClipProcessor", {
         processorOptions: {

@@ -1,4 +1,4 @@
-import init, { SoftClip } from "../_dist/wasm/fluex_dsp";
+import init, { SoftClip } from "../_dist/wasm/fluex_dsp.js";
 
 import { Debug } from "./utilities/debugger";
 
@@ -19,7 +19,7 @@ export namespace FluexGLWasmDSP {
         pathToWasm = path;
     }
 
-    export async function InitializeModule(): Promise<void> {
+    export async function InitializeModule(): Promise<boolean> {
         
         if(!wasmInitialized) {
 
@@ -27,6 +27,8 @@ export namespace FluexGLWasmDSP {
 
             wasmInitialized = true;
         }
+
+        return wasmInitialized;
     }
 
     export function CreateSoftClipEffect(drive: number = 1): SoftClip | void {

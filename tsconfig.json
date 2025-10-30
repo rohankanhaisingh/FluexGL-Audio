@@ -8,6 +8,7 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "allowJs": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": false,

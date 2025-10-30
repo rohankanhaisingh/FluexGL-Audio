@@ -1,4 +1,5 @@
-let wasm_bindgen;
+/* AUTO-GENERATED - do not edit */
+export const SoftClipProcessorWorkletSource = `let wasm_bindgen;
 (function() {
     const __exports = {};
     let script_src;
@@ -35,7 +36,7 @@ let wasm_bindgen;
     }
 
     function _assertNum(n) {
-        if (typeof(n) !== 'number') throw new Error(`expected a number argument, found ${typeof(n)}`);
+        if (typeof(n) !== 'number') throw new Error(\`expected a number argument, found \${typeof(n)}\`);
     }
 
     let cachedFloat32ArrayMemory0 = null;
@@ -141,7 +142,7 @@ let wasm_bindgen;
                     const validResponse = module.ok && EXPECTED_RESPONSE_TYPES.has(module.type);
 
                     if (validResponse && module.headers.get('Content-Type') !== 'application/wasm') {
-                        console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\n", e);
+                        console.warn("\`WebAssembly.instantiateStreaming\` failed because your server does not serve Wasm with \`application/wasm\` MIME type. Falling back to \`WebAssembly.instantiate\` which is slower. Original error:\n", e);
 
                     } else {
                         throw e;
@@ -206,7 +207,7 @@ let wasm_bindgen;
             if (Object.getPrototypeOf(module) === Object.prototype) {
                 ({module} = module)
             } else {
-                console.warn('using deprecated parameters for `initSync()`; pass a single object instead')
+                console.warn('using deprecated parameters for \`initSync()\`; pass a single object instead')
             }
         }
 
@@ -250,3 +251,38 @@ let wasm_bindgen;
     wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
 
 })();
+
+
+class SoftClipProcessor extends AudioWorkletProcessor {
+    clip = null;
+
+    constructor() {
+        super();
+
+        this.port.onmessage = async (e) => {
+            const { type, wasmUrl } = e.data || {};
+            if (type === "init" && wasmUrl) {
+
+                await __wbg_init(wasmUrl);
+
+                this.clip = new SoftClip(1.0);
+                this.port.postMessage({ type: "ready" });
+
+            }
+        };
+    }
+
+    process(inputs, outputs) {
+        if (!this.clip) return true;
+        const outL = outputs?.[0]?.[0];
+        if (outL) this.clip.process(outL);
+        return true;
+    }
+}
+
+registerProcessor("softclip-processor", SoftClipProcessor);`;
+
+export const WORKLETS = {
+  "SoftClipProcessor": SoftClipProcessorWorkletSource
+} as const;
+export type WorkletName = keyof typeof WORKLETS;
