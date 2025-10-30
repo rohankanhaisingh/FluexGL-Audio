@@ -3,9 +3,6 @@ import { v4 } from "uuid";
 import { Channel } from "./Channel";
 
 import { Debug } from "../../utilities/debugger";
-import { LoadWorkletSourceAsScript } from "../../utilities/helpers";
-import { WorkletSources } from "../../worklets/exports";
-import { WORKLETS } from "../../worklets/generated";
 
 export class Master {
 
@@ -20,11 +17,6 @@ export class Master {
      
         this.gainNode.connect(this.analyserNode);
         this.analyserNode.connect(this.context.destination);
-    }
-
-    public async InitializeAudioWorklets() {
-
-        await this.context.audioWorklet.addModule(LoadWorkletSourceAsScript(WORKLETS["SoftClipProcessor"]));
     }
 
     public AttachChannel(channel: Channel): void {

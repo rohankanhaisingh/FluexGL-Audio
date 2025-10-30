@@ -2,16 +2,11 @@ import mime from "mime";
 import { v4 } from "uuid";
 
 import { AudioDevice } from "../core/classes/AudioDevice";
-import { Master } from "../core/classes/Master";
 
 import { Debug } from "./debugger";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 
-import { FluexGLWasmDSP } from "../wasm";
 import { ErrorCodes, WarningCodes } from "../console-codes";
-
-import { WorkletSources } from "../worklets/exports";
-import { WORKLETS } from "../worklets/generated";
 
 import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
 
@@ -41,43 +36,6 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
             "Make sure the user has granted FluentGL permission to access media devices."
         ], ErrorCodes.NO_CONTEXT_PERMISSION)
     }
-
-    try {
-        await FluexGLWasmDSP.InitializeModule();
-    } catch (err) {
-
-        initialized = false;
-
-        Debug.Error("WASM module could not be initialized.", [
-            "Make sure the WASM files are correctly hosted and accessible."
-        ], ErrorCodes.WASM_MODULE_INITIALIZATION_FAILED);
-    }
-
-    try {
-
-        const wasmFile = await fetch(options.pathToWasm as string, { method: "HEAD" });
-
-        if (wasmFile.status !== 200) {
-
-            initialized = false;
-
-            Debug.Error("The specified path to the WASM file could not be found in the server.", [
-                `Received status code: ${wasmFile.status}.`,
-                `Make sure the path '${options.pathToWasm}' is correct and the file is accessible.`
-            ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
-        }
-
-    } catch (err) {
-
-        initialized = false;
-
-        Debug.Error("The specified path to the WASM file could not be found in the server.", [
-            `Make sure the path '${options.pathToWasm}' is correct and the file is accessible.`
-        ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
-    }
-
-    FluexGLWasmDSP.pathToWasm = options.pathToWasm;
-
     return initialized;
 }
 
@@ -132,8 +90,6 @@ export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | n
     const defaultAudioDevice = devices.length === 0 ? null : new AudioDevice(audioDeviceInfos[0]);
 
     if(!defaultAudioDevice) return null;
-
-    await LoadWorkletModules(defaultAudioDevice.masterChannel);
 
     return defaultAudioDevice;
 }
@@ -199,33 +155,4 @@ export async function LoadAudioSource(path: string, options: Partial<LoadAudioSo
         id: v4(),
         timestamp: Date.now()
     }
-}
-
-export function LoadWorkletSourceAsScript(source: string) {
-
-    const blob = new Blob([source], { type: "application/javascript" });
-
-    return URL.createObjectURL(blob);
-}
-
-export async function LoadWorkletModules(master: Master) {
-
-    const context = master.context;
-
-    Debug.Log("Loading audio worklet modules...");
-    
-    if(!FluexGLWasmDSP.pathToWasm) return Debug.Error("Could not load worklet modules because path to WASM file is not set.", [
-        "Make sure to call 'InitializeDspPipeline' before loading worklet modules."
-    ], ErrorCodes.PATH_TO_WASM_FILE_NOT_FOUND);
-
-    await context.audioWorklet.addModule(LoadWorkletSourceAsScript(WORKLETS["SoftClipProcessor"]));
-
-    const softClipNode = new AudioWorkletNode(context, "SoftClipProcessor", {
-        processorOptions: {
-            pathToWasm: FluexGLWasmDSP.pathToWasm,
-        }
-    });
-
-    softClipNode.connect(master.gainNode);
-    
 }

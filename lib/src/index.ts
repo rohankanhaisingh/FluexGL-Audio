@@ -62,21 +62,12 @@ export {
     ResolveDefaultAudioInputDevice,
     ResolveDefaultAudioOutputDevice,
     LoadAudioSource,
-    LoadWorkletSourceAsScript,
-    LoadWorkletModules
 } from "./utilities/helpers";
 
 export {
     SUPPORTED_FILE_TYPES
 } from "./utilities/constants";
 
-export {
-    WorkletSources
-} from "./worklets/exports";
-
-export {
-    FluexGLWasmDSP
-} from "./wasm";
 
 export {
     FluexGLAudioDescriptor,

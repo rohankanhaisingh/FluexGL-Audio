@@ -1,5 +1,4 @@
 import { Effector } from "../../core/classes/Effector";
-import { FluexGLWasmDSP } from "../../wasm";
 
 export class SoftClip extends Effector {
 
@@ -7,9 +6,6 @@ export class SoftClip extends Effector {
 
     public async Initialize(): Promise<void> {
 
-        this.wasmInstance = await FluexGLWasmDSP.CreateSoftClipEffect(this.drive);
-    
-        console.log(this.wasmInstance);
     }
 
     public async InitializeOnAttachment(parentialContext: AudioContext): Promise<void> {
