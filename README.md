@@ -92,6 +92,11 @@ The Rust toolchainer must be installed, in order to install the other tools.
 $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
+For windows:
+```
+$ irm https://sh.rustup.rs | sh
+```
+
 ```
 $ rustup target add wasm32-unknown-unknown
 ```
@@ -102,6 +107,10 @@ $ cargo install wasm-bindgen-cli
 
 ```
 $ cargo install wasm-pack
+```
+
+```
+cargo install cargo-watch
 ```
 
 Optional:
