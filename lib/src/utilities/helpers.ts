@@ -6,7 +6,7 @@ import { AudioDevice } from "../core/classes/AudioDevice";
 import { Debug } from "./debugger";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 
-import { LoadWorkletOnMasterChannel } from "../web-assembly";
+import { LoadWorkletOnMasterChannel, LoadWebAssemblyModule } from "../web-assembly";
 import { ErrorCodes, WarningCodes } from "../console-codes";
 
 import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptions } from "../typings";
@@ -37,6 +37,8 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
             "Make sure the user has granted FluentGL permission to access media devices."
         ], ErrorCodes.NO_CONTEXT_PERMISSION)
     }
+
+    const module = await LoadWebAssemblyModule(options.pathToWasm);
 
     return initialized;
 }
@@ -159,4 +161,13 @@ export async function LoadAudioSource(path: string, options: Partial<LoadAudioSo
         id: v4(),
         timestamp: Date.now()
     }
+}
+
+export function ConstructProcessorWorklet(code: string): string {
+
+    const blob = new Blob([code], {
+        type: "application/javascript"
+    });
+
+    return URL.createObjectURL(blob);
 }
