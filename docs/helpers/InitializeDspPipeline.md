@@ -28,7 +28,7 @@ import { InitializeDspPipeline } from "@fluexgl/dsp";
 async function main() {
 
     const hasInitialized: boolean = await InitializeDspPipeline({
-        pathToWasmFileInServer: "/assets/_dist/fluex_dsp_bg.wasm"
+        pathToWasm: "/assets/_dist/fluex_dsp_bg.wasm"
     });
 
     if(!hasInitialized) return console.log("Aawh man, could not initialize the DSP pipeline".);
