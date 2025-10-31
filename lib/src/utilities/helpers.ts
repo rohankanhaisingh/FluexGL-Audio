@@ -19,12 +19,16 @@ import { LoadAudioSourceOptions, AudioSourceData, DspPipelineInitializationOptio
  * @returns 
  */
 export async function InitializeDspPipeline(options: DspPipelineInitializationOptions): Promise<boolean> {
+    Debug.Log("Attempting to initialize DSP pipeline...");
 
+    const start: number = Date.now();
     let initialized: boolean = true;
 
     try {
 
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        Debug.Log(`Found ${stream.getTracks().length} media stream tracks.`);
 
         stream.getTracks().forEach(function (track: MediaStreamTrack) {
             track.stop();
@@ -38,7 +42,12 @@ export async function InitializeDspPipeline(options: DspPipelineInitializationOp
         ], ErrorCodes.NO_CONTEXT_PERMISSION)
     }
 
-    const module = await LoadWebAssemblyModule(options.pathToWasm);
+    await LoadWebAssemblyModule(options.pathToWasm);
+
+    const end: number = Date.now(),
+        difference: number = end - start;
+
+    Debug.Success(`Succesfully initialized DSP pipeline within ${difference}ms.`);
 
     return initialized;
 }
@@ -80,9 +89,9 @@ export async function ResolveAudioInputDevices(): Promise<AudioDevice[]> {
  * @returns 
  */
 export async function ResolveDefaultAudioOutputDevice(): Promise<AudioDevice | null> {
-
+    Debug.Log("Attempting to resolve default audio output device...");
+    
     const audioDeviceInfos: MediaDeviceInfo[] = [];
-
     const devices = await navigator.mediaDevices.enumerateDevices();
 
     for (let device of devices)

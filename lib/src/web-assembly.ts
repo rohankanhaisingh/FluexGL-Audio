@@ -9,7 +9,6 @@ export let compiledWebAssemblyModule: WebAssembly.Module | null = null;
 export async function LoadWebAssemblyModule(path: string): Promise<WebAssembly.Module> {
 
     return new Promise(function(resolve, reject) {
-
         WebAssembly.compileStreaming(fetch(path)).then(function(module: WebAssembly.Module) {
             compiledWebAssemblyModule = module;
             resolve(module);
@@ -20,13 +19,10 @@ export async function LoadWebAssemblyModule(path: string): Promise<WebAssembly.M
 }
 
 export async function LoadWorkletOnMasterChannel(master: Master) {
+    Debug.Log("Loading worklet modules on master channel...", [ `Channel ID: ${master.id}` ]);
 
     const context: AudioContext = master.context,
         start: number = Date.now();
-    
-    Debug.Log("Loading worklet modules on master channel...", [
-        `Channel ID: ${master.id}`
-    ]);
 
     await ProcessorWorklets.MinifyProcessorWorkletCode();
 
@@ -46,22 +42,10 @@ export async function LoadWorkletOnMasterChannel(master: Master) {
     const end: number = Date.now(),
         difference: number = end - start;
 
-    Debug.Log("Succesfully loaded audio processor worklets into master channel.", [
+    Debug.Success("Succesfully loaded audio processor worklets into master channel.", [
         `Executed in ${difference}ms.`,
         `Added ${worklets.length} processor worklets into ${master.id}.`
     ]);
-
-    const softClipNode = new AudioWorkletNode(context, "SoftClipProcessor", {
-        numberOfInputs: 1,
-        numberOfOutputs: 1,
-        outputChannelCount: [2],
-        parameterData: {
-            drive: 1
-        },
-        processorOptions: {
-            module: compiledWebAssemblyModule
-        }
-    });
 
     return true;
 }

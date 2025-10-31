@@ -21,6 +21,9 @@ export class Channel {
     public gainNode: GainNode | null = null;
     public stereoPannerNode: StereoPannerNode | null = null;
 
+    public inputGainNode: GainNode | null = null;
+    public outputGainNode: GainNode | null = null;
+
     constructor(public options: Partial<ChannelOptions> = { maxAudioNodes: 8, maxEffects: 8 }) {
 
         this.label = options.label ?? null;
@@ -33,6 +36,9 @@ export class Channel {
 
         this.gainNode = new GainNode(this.parentialContext);
         this.stereoPannerNode = new StereoPannerNode(this.parentialContext);
+
+        this.inputGainNode = new GainNode(this.parentialContext);
+        this.outputGainNode = new GainNode(this.parentialContext);
 
         this.gainNode.connect(this.parentialMasterChannel.gainNode);
         this.stereoPannerNode.connect(this.gainNode);
@@ -103,11 +109,17 @@ export class Channel {
 
     public AddEffect(effect: Effector): void {
 
+        if(!this.parentialContext) return Debug.Error("Could not add effect on channel, because the parential context is undefined.", [
+            `Channel ID: ${this.id}`,
+            `Effect ID: ${effect.id}`,
+            `Effect name: ${effect.constructor.name}`
+        ])
+
         if(this.effects.includes(effect)) return Debug.Error("Could not add effect because it is already part of this channel", [
             "Call .RemoveEffect([effect Effector]) before adding effect."
         ]);
 
-        effect.InitializeOnAttachment(this.parentialContext!);
+        effect.InitializeOnAttachment(this.parentialContext);
         this.effects.push(effect);
     }
 
