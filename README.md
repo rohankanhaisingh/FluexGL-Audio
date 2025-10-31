@@ -39,7 +39,9 @@ import {
     if(!hasInitialized) return null;
 
     // Resolves the default audio output device.
-    const audioDevice: AudioDevice | null = await ResolveDefaultAudioOutputDevice();
+    const audioDevice: AudioDevice | null = await ResolveDefaultAudioOutputDevice({
+        pathToWasm: "/wasm/fluexgl-dsp-wasm_bg.wasm"
+    });
 
     if(!audioDevice) return;
 
@@ -82,45 +84,4 @@ The library also includes a powerful debugging system that allows developers to 
 
 ## Web Assembly
 
-FluexGL DSP is partially made using Web Assembly, and Rust as programming language. In order to use FluexGL DSP, the wasm source code must be built, which can be done using the following steps.
-
-### Requirements
-
-The Rust toolchainer must be installed, in order to install the other tools.
-
-```
-$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-For windows:
-```
-$ irm https://sh.rustup.rs | sh
-```
-
-```
-$ rustup target add wasm32-unknown-unknown
-```
-
-```
-$ cargo install wasm-bindgen-cli
-```
-
-```
-$ cargo install wasm-pack
-```
-
-```
-cargo install cargo-watch
-```
-
-Optional:
-```
-$ sudo apt-get install -y binaryen
-```
-
-### NPM scripts
-
-This command will build the entire project.
-```
-$ npm run build
-```
+FluexGL DSP is partially made using Web Assembly, and Rust as programming language. In order to use FluexGL DSP, the wasm source code must be provided when initializing the DSP pipeline. The source code can be found at the [FluexGL DSP WebAssembly Github repository](https://github.com/rohankanhaisingh/FluexGL-DSP-WebAssembly).
